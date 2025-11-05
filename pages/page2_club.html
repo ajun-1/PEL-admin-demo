@@ -6,11 +6,12 @@
   <title> 俱乐部配置原型</title>
   <link rel="stylesheet" href="../assets/css/base.css">
   <style>
-    。modal-overlay {position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 3000;}
-    。modal {background: #fff; width: 900px; max-height: 80vh; overflow: auto; border-radius: 8px; box-shadow: 0 10px 24px rgba(0,0,0,.2); position: relative; z-index: 3001;}
-    。modal-header {display:flex; justify-content: space-between; align-items:center; padding:12px 16px; border-bottom:1px solid #eee; font-weight:600;}
-    。modal-body {padding:16px;}
-    。modal-footer {padding:12px 16px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end;}
+    .modal-overlay {position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 3000;}
+    .modal {background: #fff; width: 900px; max-height: 80vh; overflow: auto; border-radius: 8px; box-shadow: 0 10px 24px rgba(0,0,0,.2); position: relative; z-index: 3001;}
+    .modal-header {display:flex; justify-content: space-between; align-items:center; padding:12px 16px; border-bottom:1px solid #eee; font-weight:600;}
+    .modal-body {padding:16px;}
+    .modal-footer {padding:12px 16px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end;}
+    body.modal-open { overflow: hidden; }
   </style>
 </head>
 <body>
@@ -403,22 +404,27 @@
       const cancelBtn = document.getElementById('btn-modal-cancel');
       const closeGlobalBtn = document.getElementById('btn-global-close');
       const cancelGlobalBtn = document.getElementById('btn-global-cancel');
-      // 保证弹窗在 body 顶层，避免父容器的堆叠上下文影响显示
+      // 增强弹窗逻辑：自动失焦选择框，确保挂到 body 顶层，禁用滚动
       const mountToBody = (el) => { if (el && el.parentElement !== document.body) document.body.appendChild(el); };
-      mountToBody(overlayAdd);
-      mountToBody(overlayGlobal);
-      if (addBtn && overlayAdd) addBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        try { if (document.activeElement) document.activeElement.blur(); } catch (_) {}
-        mountToBody(overlayAdd);
-        overlayAdd.style.display = 'flex';
-      });
-      if (globalBtn && overlayGlobal) globalBtn.addEventListener('click', () => { overlayGlobal.style.display = 'flex'; });
-      if (closeBtn && overlayAdd) closeBtn.addEventListener('click', () => { overlayAdd.style.display = 'none'; });
-      if (cancelBtn && overlayAdd) cancelBtn.addEventListener('click', () => { overlayAdd.style.display = 'none'; });
-      if (closeGlobalBtn && overlayGlobal) closeGlobalBtn.addEventListener('click', () => { overlayGlobal.style.display = 'none'; });
-      if (cancelGlobalBtn && overlayGlobal) cancelGlobalBtn.addEventListener('click', () => { overlayGlobal.style.display = 'none'; });
+      const openModal = (el) => {
+        if (!el) return;
+        try { document.activeElement && document.activeElement.blur(); } catch(_) {}
+        mountToBody(el);
+        el.style.display = 'flex';
+        document.body.classList.add('modal-open');
+      };
+      const closeModal = (el) => {
+        if (!el) return;
+        el.style.display = 'none';
+        document.body.classList.remove('modal-open');
+      };
+
+      if (addBtn && overlayAdd) addBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(overlayAdd); });
+      if (globalBtn && overlayGlobal) globalBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(overlayGlobal); });
+      if (closeBtn && overlayAdd) closeBtn.addEventListener('click', () => { closeModal(overlayAdd); });
+      if (cancelBtn && overlayAdd) cancelBtn.addEventListener('click', () => { closeModal(overlayAdd); });
+      if (closeGlobalBtn && overlayGlobal) closeGlobalBtn.addEventListener('click', () => { closeModal(overlayGlobal); });
+      if (cancelGlobalBtn && overlayGlobal) cancelGlobalBtn.addEventListener('click', () => { closeModal(overlayGlobal); });
     });
   </script>
 </body>
