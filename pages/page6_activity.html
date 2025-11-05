@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> · 活动配置原型</title>
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <style>
+    .modal-overlay {position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 1000;}
+    .modal {background: #fff; width: 900px; max-height: 80vh; overflow: auto; border-radius: 8px; box-shadow: 0 10px 24px rgba(0,0,0,.2);} 
+    .modal-header {display:flex; justify-content: space-between; align-items:center; padding:12px 16px; border-bottom:1px solid #eee; font-weight:600;}
+    .modal-body {padding:16px;}
+    .modal-footer {padding:12px 16px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end;}
+    .table {width:100%; border-collapse: collapse;}
+    .table th, .table td {padding:8px; border-bottom:1px solid #eee; text-align:left;}
+    .actions {display:flex; gap:8px;}
+    .filter-row {display:flex; justify-content: space-between; align-items:center; gap:8px; margin-bottom:8px;}
+  </style>
+</head>
+<body>
+  <header id="app-header">
+    <div class="brand"> · 活动配置原型</div>
+  </header>
+  <main class="container">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="page1_banner.html"> Banner配置</a></li>
+          <li><a href="page2_club.html"> 俱乐部配置</a></li>
+          <li><a href="page3_shop.html"> 商城商品配置</a></li>
+          <li><a href="page4_points.html"> 积分兑换配置</a></li>
+          <li><a href="page5_import.html"> 非小程序消费导入</a></li>
+          <li><a href="page6_activity.html"> 活动配置</a></li>
+          <li><a href="../index.html">返回首页</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <section class="content">
+      <!-- 活动列表入口 -->
+      <div class="card">
+        <h2>活动列表</h2>
+        <div class="filter-row">
+          <div class="form-item">
+            <label>状态筛选</label>
+            <select id="activity-status-filter">
+              <option value="全部">全部</option>
+              <option value="进行中">进行中</option>
+              <option value="待开始">待开始</option>
+              <option value="已结束">已结束</option>
+            </select>
+          </div>
+          <div>
+            <button class="btn primary" id="btn-create-activity">创建新活动</button>
+          </div>
+        </div>
+        <table class="table" id="activity-list-table">
+          <thead>
+            <tr>
+              <th>活动名称</th>
+              <th>类型</th>
+              <th>子类型</th>
+              <th>时间</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- 创建/编辑活动弹窗（将原表单整体搬入此处） -->
+      <div class="modal-overlay" id="activity-overlay">
+        <div class="modal">
+          <div class="modal-header">
+            <span id="activity-modal-title">创建新活动</span>
+            <button type="button" class="btn" id="btn-close-activity">关闭</button>
+          </div>
+          <div class="modal-body">
+            <div class="card">
+              <h2>活动类型与子类型选择</h2>
+              <form id="form-activity-select" class="form-grid">
+                <div class="form-item">
+                  <label>活动类型（必选）</label>
+                  <select id="activity-type" name="activity_type" required>
+                    <option value="线上活动">线上活动</option>
+                    <option value="线下活动">线下活动</option>
+                  </select>
+                </div>
+                <div class="form-item">
+                  <label>活动子类型（必选）</label>
+                  <select id="activity-subtype" name="activity_subtype" required>
+                    <option>UGC 活动</option>
+                    <option>投票活动</option>
+                    <option>H5 跳转活动</option>
+                    <option>秒杀商品</option>
+                  </select>
+                </div>
+              </form>
+            </div>
+
+            <div class="card">
+              <h2>通用字段</h2>
+              <form id="form-common" class="form-grid">
+                <div class="form-item" id="common-name">
+                  <label>活动名称（必选）</label>
+                  <input type="text" name="activity_name" required />
+                </div>
+                <div class="form-item" id="common-image">
+                  <label>活动图（必选）</label>
+                  <input type="file" accept="image/*" name="activity_image" />
+                  <div class="help">说明：活动主视觉图</div>
+                </div>
+                <div class="form-item" id="common-intro">
+                  <label>活动简介（可选）</label>
+                  <textarea name="activity_intro" rows="3" placeholder="简要说明活动内容"></textarea>
+                </div>
+                <div class="two-col" id="common-time">
+                  <div class="form-item">
+                    <label>开始时间（必选）</label>
+                    <input type="datetime-local" name="start_time" required />
+                  </div>
+                  <div class="form-item">
+                    <label>结束时间（必选）</label>
+                    <input type="datetime-local" name="end_time" required />
+                  </div>
+                </div>
+                <div class="form-item" id="common-points">
+                  <label>积分奖励（可选）</label>
+                  <input type="number" name="points_reward" min="0" step="1" placeholder="如 20" />
+                </div>
+                <div class="form-item" id="common-level">
+                  <label>等级参与限制（必选）</label>
+                  <select name="level_limit" required>
+                    <option>Lv1</option>
+                    <option>Lv2</option>
+                    <option>Lv3</option>
+                    <option>Lv4</option>
+                    <option>Lv5</option>
+                  </select>
+                </div>
+                <div class="form-item" id="common-club">
+                  <label>所属俱乐部（必选）</label>
+                  <select name="club" required>
+                    <option value="">请选择</option>
+                    <option>JDG</option>
+                    <option>TianBa</option>
+                    <option>WBG</option>
+                  </select>
+                </div>
+                <div class="form-item" id="common-status">
+                  <label>活动状态（必选）</label>
+                  <select name="status" required>
+                    <option value="活跃">活跃</option>
+                    <option value="下线">下线</option>
+                  </select>
+                </div>
+                <div class="form-item" id="common-category" style="display:none;">
+                  <label>所属类别（线下活动）</label>
+                  <select name="category">
+                    <option>赛事</option>
+                    <option>活动</option>
+                    <option>应援区</option>
+                    <option>其他</option>
+                  </select>
+                </div>
+              </form>
+            </div>
+
+            <!-- 线上活动：UGC -->
+            <div class="card" id="ugc-group" style="display:none;">
+              <h2>UGC 活动要求配置</h2>
+              <form id="form-ugc" class="form-grid">
+                <div class="form-item">
+                  <label><input type="checkbox" id="ugc-enable-link" /> UGC 创作链接入口（勾选）</label>
+                  <div class="help">说明：勾选后需填写创作链接，后台人工审核内容。</div>
+                </div>
+                <div class="form-item" id="ugc-link-field" style="display:none;">
+                  <label>创作链接</label>
+                  <input type="url" name="ugc_link" placeholder="https://..." />
+                </div>
+                <div class="form-item">
+                  <label><input type="checkbox" id="ugc-enable-screenshot" /> UGC 创作截图上传入口（勾选）</label>
+                </div>
+                <div class="form-item" id="ugc-screenshot-field" style="display:none;">
+                  <label>创作截图</label>
+                  <input type="file" accept="image/*" name="ugc_screenshots" multiple />
+                </div>
+                <div class="form-item">
+                  <label>UGC 积分奖励（数值）</label>
+                  <input type="number" name="ugc_points" min="0" step="1" placeholder="如 10" />
+                </div>
+              </form>
+            </div>
+
+            <!-- 线上活动：投票 -->
+            <div class="card" id="vote-group" style="display:none;">
+              <h2>投票活动配置</h2>
+              <form id="form-vote" class="form-grid">
+                <div class="form-item">
+                  <label>投票介绍</label>
+                  <textarea name="vote_intro" rows="3" placeholder="投票活动说明"></textarea>
+                </div>
+                <div class="form-item">
+                  <label>单 / 多选设置</label>
+                  <div>
+                    <label><input type="radio" name="vote_mode" value="single" checked /> 单选</label>
+                    <label><input type="radio" name="vote_mode" value="multiple" /> 多选</label>
+                  </div>
+                </div>
+                <div class="form-item">
+                  <label>增添选项</label>
+                  <div class="two-col" style="grid-column: 1 / -1;">
+                    <input type="text" id="vote-option-input" placeholder="输入选项内容" />
+                    <button type="button" class="btn" id="btn-add-option">添加选项</button>
+                  </div>
+                  <ul id="vote-options-list" class="list" style="margin-top:8px;"></ul>
+                  <div class="help">说明：后台处理投票结果，前端展示投票数据。</div>
+                </div>
+              </form>
+            </div>
+
+            <!-- 线上活动：H5 跳转 -->
+            <div class="card" id="h5-group" style="display:none;">
+              <h2>H5 跳转活动配置</h2>
+              <form id="form-h5" class="form-grid">
+                <div class="form-item">
+                  <label>H5 跳转链接</label>
+                  <input type="url" name="h5_link" placeholder="https://..." />
+                  <div class="help">说明：点击跳转到外部 H5 互动页。</div>
+                </div>
+                <div class="form-item">
+                  <label>回流数据统计标识（可选）</label>
+                  <input type="text" name="h5_track" placeholder="如 utm_campaign=activity" />
+                  <div class="help">说明：用于统计完成率 / 点击量的参数标识。</div>
+                </div>
+              </form>
+            </div>
+
+            <!-- 线上活动：秒杀商品 -->
+            <div class="card" id="seckill-group" style="display:none;">
+              <h2>秒杀商品活动配置</h2>
+              <form id="form-seckill" class="form-grid">
+                <div class="form-item">
+                  <label>选择商品</label>
+                  <select name="seckill_product">
+                    <option value="">请选择商品</option>
+                    <option>商品A</option>
+                    <option>商品B</option>
+                    <option>商品C</option>
+                  </select>
+                  <div class="help">说明：点击后将跳转至商品详情页。</div>
+                </div>
+              </form>
+            </div>
+
+            <!-- 线下活动：扫码核销 -->
+            <div class="card" id="offline-scan-group" style="display:none;">
+              <h2>线下扫码核销配置</h2>
+              <form id="form-offline-scan" class="form-grid">
+                <div class="form-item">
+                  <label>活动地点（必选）</label>
+                  <input type="text" name="offline_place" placeholder="如 北京·国家体育馆" />
+                </div>
+                <div class="two-col" style="grid-column:1/-1;">
+                  <div class="form-item">
+                    <label>活动二维码（自动生成）</label>
+                    <input type="text" id="offline-qr-link" name="offline_qr" placeholder="生成后显示链接" disabled />
+                  </div>
+                  <div class="form-item">
+                    <label>&nbsp;</label>
+                    <button type="button" class="btn" id="btn-generate-qr">生成二维码链接</button>
+                  </div>
+                </div>
+                <div class="help">说明：现场扫码签到、核销；后台根据回传金额与应援区发放积分成长值。</div>
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn" id="btn-preview-activity">预览配置</button>
+            <button class="btn" id="btn-cancel-activity">取消</button>
+            <button class="btn primary" id="btn-publish-activity">确认并发布</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../assets/js/common.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- 列表数据与弹窗状态 ---
+      const activities = [
+        {id:1, name:'粉丝UGC征集', type:'线上活动', subtype:'UGC 活动', status:'进行中', start_time:'2025-11-01T10:00', end_time:'2025-11-30T23:59'},
+        {id:2, name:'年度最佳投票', type:'线上活动', subtype:'投票活动', status:'待开始', start_time:'2025-12-10T09:00', end_time:'2025-12-20T23:59'},
+        {id:3, name:'线下见面会', type:'线下活动', subtype:'线下扫码核销', status:'已结束', start_time:'2025-10-01T09:00', end_time:'2025-10-01T18:00'}
+      ];
+      let mode = 'create'; // create | edit
+      let currentId = null;
+
+      const overlay = document.getElementById('activity-overlay');
+      const modalTitle = document.getElementById('activity-modal-title');
+      const statusFilter = document.getElementById('activity-status-filter');
+      const tableBody = document.querySelector('#activity-list-table tbody');
+
+      const typeSel = document.getElementById('activity-type');
+      const subSel = document.getElementById('activity-subtype');
+      const groups = {
+        ugc: document.getElementById('ugc-group'),
+        vote: document.getElementById('vote-group'),
+        h5: document.getElementById('h5-group'),
+        seckill: document.getElementById('seckill-group'),
+        offline: document.getElementById('offline-scan-group')
+      };
+      const common = {
+        image: document.getElementById('common-image'),
+        points: document.getElementById('common-points'),
+        category: document.getElementById('common-category')
+      };
+
+      const subtypeOptions = {
+        '线上活动': ['UGC 活动', '投票活动', 'H5 跳转活动', '秒杀商品'],
+        '线下活动': ['线下扫码核销']
+      };
+
+      const setSubtype = (type) => {
+        const opts = subtypeOptions[type] || [];
+        subSel.innerHTML = '';
+        opts.forEach(o => {
+          const opt = document.createElement('option');
+          opt.textContent = o; opt.value = o; subSel.appendChild(opt);
+        });
+      };
+
+      const updateVisibility = () => {
+        const type = typeSel.value;
+        const sub = subSel.value;
+        Object.values(groups).forEach(g => { if (g) g.style.display = 'none'; });
+        if (type === '线上活动') {
+          common.category.style.display = 'none';
+          if (sub === 'UGC 活动') {
+            groups.ugc.style.display = '';
+            common.image.style.display = '';
+            common.points.style.display = '';
+          } else if (sub === '投票活动') {
+            groups.vote.style.display = '';
+            common.image.style.display = '';
+            common.points.style.display = '';
+          } else if (sub === 'H5 跳转活动') {
+            groups.h5.style.display = '';
+            common.image.style.display = '';
+            common.points.style.display = 'none';
+          } else if (sub === '秒杀商品') {
+            groups.seckill.style.display = '';
+            common.image.style.display = 'none';
+            common.points.style.display = 'none';
+          }
+        } else {
+          groups.offline.style.display = '';
+          common.category.style.display = '';
+          common.image.style.display = '';
+          common.points.style.display = '';
+        }
+      };
+
+      setSubtype(typeSel.value);
+      updateVisibility();
+      typeSel.addEventListener('change', () => { setSubtype(typeSel.value); updateVisibility(); });
+      subSel.addEventListener('change', updateVisibility);
+
+      // UGC checkbox toggles
+      const ugcLinkToggle = document.getElementById('ugc-enable-link');
+      const ugcShotToggle = document.getElementById('ugc-enable-screenshot');
+      const ugcLinkField = document.getElementById('ugc-link-field');
+      const ugcShotField = document.getElementById('ugc-screenshot-field');
+      if (ugcLinkToggle) ugcLinkToggle.addEventListener('change', () => {
+        ugcLinkField.style.display = ugcLinkToggle.checked ? '' : 'none';
+      });
+      if (ugcShotToggle) ugcShotToggle.addEventListener('change', () => {
+        ugcShotField.style.display = ugcShotToggle.checked ? '' : 'none';
+      });
+
+      // Vote options add/remove
+      const addOptBtn = document.getElementById('btn-add-option');
+      const optInput = document.getElementById('vote-option-input');
+      const optList = document.getElementById('vote-options-list');
+      if (addOptBtn) addOptBtn.addEventListener('click', () => {
+        const val = (optInput.value || '').trim();
+        if (!val) return;
+        const li = document.createElement('li');
+        li.textContent = val;
+        const del = document.createElement('button');
+        del.type = 'button'; del.className = 'btn'; del.textContent = '删除';
+        del.style.marginLeft = '8px';
+        del.addEventListener('click', () => li.remove());
+        li.appendChild(del);
+        optList.appendChild(li);
+        optInput.value = '';
+      });
+
+      // Offline QR generate
+      const genBtn = document.getElementById('btn-generate-qr');
+      const qrInput = document.getElementById('offline-qr-link');
+      if (genBtn) genBtn.addEventListener('click', () => {
+        const stamp = Date.now();
+        qrInput.value = `qr://activity-${stamp}`;
+      });
+
+      // --- 列表渲染与筛选 ---
+      const renderList = () => {
+        const filter = statusFilter.value;
+        tableBody.innerHTML = '';
+        activities.filter(a => filter === '全部' ? true : a.status === filter)
+          .forEach(a => {
+            const tr = document.createElement('tr');
+            const timeStr = `${(a.start_time||'').replace('T',' ')} ~ ${(a.end_time||'').replace('T',' ')}`;
+            tr.innerHTML = `
+              <td>${a.name}</td>
+              <td>${a.type}</td>
+              <td>${a.subtype}</td>
+              <td>${timeStr}</td>
+              <td>${a.status}</td>
+              <td class="actions">
+                <button class="btn" data-id="${a.id}" data-action="edit">编辑</button>
+              </td>`;
+            tableBody.appendChild(tr);
+          });
+      };
+      statusFilter.addEventListener('change', renderList);
+      renderList();
+
+      // --- 弹窗开关 ---
+      const openModal = (titleText) => { modalTitle.textContent = titleText || '创建新活动'; overlay.style.display = 'flex'; };
+      const closeModal = () => { overlay.style.display = 'none'; };
+      document.getElementById('btn-close-activity').addEventListener('click', closeModal);
+      document.getElementById('btn-cancel-activity').addEventListener('click', closeModal);
+
+      // --- 表单重置/填充 ---
+      const formIds = ['form-activity-select','form-common','form-ugc','form-vote','form-h5','form-seckill','form-offline-scan'];
+      const resetForm = () => {
+        formIds.forEach(id => { const f = document.getElementById(id); if (f) f.reset(); });
+        // 清理投票选项与显示项
+        const optList = document.getElementById('vote-options-list');
+        if (optList) optList.innerHTML = '';
+        document.getElementById('ugc-link-field').style.display = 'none';
+        document.getElementById('ugc-screenshot-field').style.display = 'none';
+        setSubtype(typeSel.value);
+        updateVisibility();
+      };
+
+      const fillFormFromActivity = (a) => {
+        typeSel.value = a.type;
+        setSubtype(typeSel.value);
+        subSel.value = a.subtype;
+        updateVisibility();
+        const get = sel => document.querySelector(sel);
+        if (get('input[name=activity_name]')) get('input[name=activity_name]').value = a.name || '';
+        if (get('input[name=start_time]')) get('input[name=start_time]').value = a.start_time || '';
+        if (get('input[name=end_time]')) get('input[name=end_time]').value = a.end_time || '';
+        if (get('select[name=status]')) get('select[name=status]').value = (a.status === '进行中' ? '活跃' : '下线');
+      };
+
+      // 创建新活动
+      document.getElementById('btn-create-activity').addEventListener('click', () => {
+        mode = 'create'; currentId = null; resetForm(); openModal('创建新活动');
+      });
+
+      // 编辑活动按钮委托
+      document.getElementById('activity-list-table').addEventListener('click', (e) => {
+        const t = e.target; if (t && t.dataset && t.dataset.action === 'edit') {
+          const id = Number(t.dataset.id);
+          const item = activities.find(x => x.id === id);
+          if (!item) return;
+          mode = 'edit'; currentId = id; resetForm(); fillFormFromActivity(item); openModal('编辑活动');
+        }
+      });
+
+      // 预览与发布（模拟）
+      document.getElementById('btn-preview-activity').addEventListener('click', () => {
+        const name = (document.querySelector('input[name=activity_name]')?.value || '').trim();
+        alert(name ? `预览活动：【${name}】` : '请先填写活动名称');
+      });
+
+      document.getElementById('btn-publish-activity').addEventListener('click', () => {
+        const name = (document.querySelector('input[name=activity_name]')?.value || '').trim();
+        const start = document.querySelector('input[name=start_time]')?.value || '';
+        const end = document.querySelector('input[name=end_time]')?.value || '';
+        const statusVal = document.querySelector('select[name=status]')?.value || '活跃';
+        const statusMap = { '活跃':'进行中', '下线':'已结束' };
+        const item = { name, start_time:start, end_time:end, type:typeSel.value, subtype:subSel.value, status: statusMap[statusVal] || '进行中' };
+        if (!name || !start || !end) { alert('请填写完整基本信息（名称、开始/结束时间）'); return; }
+        if (mode === 'create') {
+          const maxId = activities.reduce((m,a)=>Math.max(m,a.id),0);
+          item.id = maxId + 1; activities.push(item);
+        } else if (mode === 'edit' && currentId != null) {
+          const idx = activities.findIndex(a => a.id === currentId);
+          if (idx >= 0) activities[idx] = { id: currentId, ...item };
+        }
+        renderList(); closeModal();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# OS/Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs & caches
+*.log
+.cache/
+
+# Node/Vite (if used later)
+node_modules/
+dist/
+
+# Python (if used later)
+__pycache__/
+*.pyc
+
+# Misc
+.env
