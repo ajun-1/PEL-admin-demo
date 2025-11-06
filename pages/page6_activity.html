@@ -6,15 +6,17 @@
   <title> 活动配置原型</title>
   <link rel="stylesheet" href="../assets/css/base.css">
   <style>
-    。modal-overlay {position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 1000;}
-    。modal {background: #fff; width: 900px; max-height: 80vh; overflow: auto; border-radius: 8px; box-shadow: 0 10px 24px rgba(0,0,0,.2);} 
-    。modal-header {display:flex; justify-content: space-between; align-items:center; padding:12px 16px; border-bottom:1px solid #eee; font-weight:600;}
-    。modal-body {padding:16px;}
-    。modal-footer {padding:12px 16px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end;}
-    。table {width:100%; border-collapse: collapse;}
-    。table th, .table td {padding:8px; border-bottom:1px solid #eee; text-align:left;}
-    。actions {display:flex; gap:8px;}
-    。filter-row {display:flex; justify-content: space-between; align-items:center; gap:8px; margin-bottom:8px;}
+    .modal-overlay {position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 3000;}
+    .modal {background: #fff; width: 900px; max-height: 80vh; overflow: auto; border-radius: 8px; box-shadow: 0 10px 24px rgba(0,0,0,.2); position: relative; z-index: 3001;}
+    .modal-header {display:flex; justify-content: space-between; align-items:center; padding:12px 16px; border-bottom:1px solid #eee; font-weight:600;}
+    .modal-body {padding:16px;}
+    .modal-footer {padding:12px 16px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end;}
+    .table {width:100%; border-collapse: collapse;}
+    .table th, .table td {padding:8px; border-bottom:1px solid #eee; text-align:left;}
+    .actions {display:flex; gap:8px;}
+    .filter-row {display:flex; justify-content: space-between; align-items:center; gap:8px; margin-bottom:8px;}
+    .content-actions { display:flex; justify-content:flex-end; margin-bottom:12px; }
+    body.modal-open { overflow: hidden; }
   </style>
 </head>
 <body>
@@ -36,6 +38,9 @@
       </nav>
     </aside>
     <section class="content">
+      <div class="content-actions">
+        <button class="btn primary" id="btn-create-activity">创建新活动</button>
+      </div>
       <!-- 活动列表入口 -->
       <div class="card">
         <h2>活动列表</h2>
@@ -49,9 +54,7 @@
               <option value="已结束">已结束</option>
             </select>
           </div>
-          <div>
-            <button class="btn primary" id="btn-create-activity">创建新活动</button>
-          </div>
+          <!-- 按钮已移至页面右上角的 content-actions -->
         </div>
         <table class="table" id="activity-list-table">
           <thead>
@@ -429,8 +432,16 @@
       renderList();
 
       // --- 弹窗开关 ---
-      const openModal = (titleText) => { modalTitle.textContent = titleText || '创建新活动'; overlay.style.display = 'flex'; };
-      const closeModal = () => { overlay.style.display = 'none'; };
+      const openModal = (titleText) => {
+        modalTitle.textContent = titleText || '创建新活动';
+        try { document.activeElement && document.activeElement.blur(); } catch(_) {}
+        overlay.style.display = 'flex';
+        document.body.classList.add('modal-open');
+      };
+      const closeModal = () => {
+        overlay.style.display = 'none';
+        document.body.classList.remove('modal-open');
+      };
       document.getElementById('btn-close-activity').addEventListener('click', closeModal);
       document.getElementById('btn-cancel-activity').addEventListener('click', closeModal);
 
