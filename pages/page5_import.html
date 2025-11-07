@@ -14,13 +14,15 @@
     <aside class="sidebar">
       <nav>
         <ul>
+          <li><a href="page0_user.html"> 用户管理</a></li>
           <li><a href="page1_banner.html"> Banner配置</a></li>
           <li><a href="page2_club.html"> 俱乐部配置</a></li>
-          <li><a href="page3_shop.html"> 商城商品配置</a></li>
-          <li><a href="page4_points.html"> 积分兑换配置</a></li>
-          <li><a href="page5_import.html"> 非小程序消费导入</a></li>
+          <li><a href="page7_product.html"> 商品管理</a></li>
           <li><a href="page6_activity.html"> 活动配置</a></li>
-          <li><a href="../index.html">返回首页</a></li>
+          <li><a href="page8_review.html"> 审核模块</a></li>
+          <li><a href="page9_feedback.html"> 问题反馈</a></li>
+          <li><a href="page5_import.html"> 非小程序消费导入</a></li>
+          <li><a href="page10_account.html"> 账号管理</a></li>
         </ul>
       </nav>
     </aside>
@@ -48,24 +50,17 @@
       </div>
 
       <div class="card info">
-        <h2>Excel1 · 粉丝直播打赏数据字段</h2>
-        <div class="form-grid">
-          <div class="form-item"><label>小程序UID（必填）</label><input type="text" value="示例：user_123" disabled /></div>
-          <div class="form-item"><label>直播平台</label><input type="text" value="抖音/虎牙..." disabled /></div>
-          <div class="form-item"><label>直播平台ID（必填）</label><input type="text" value="示例：douyin_abc" disabled /></div>
-          <div class="form-item"><label>打赏金额</label><input type="text" value="数值型" disabled /></div>
-          <div class="form-item"><label>选手姓名</label><input type="text" value="文本" disabled /></div>
-          <div class="form-item"><label>归属俱乐部</label><input type="text" value="文本" disabled /></div>
+        <h2>Excel模板下载</h2>
+        <p>以下为两类导入模板，采用 CSV 格式，Excel 可直接打开编辑：</p>
+        <div class="btn-row">
+          <button class="btn" id="btn-download-excel1">下载 Excel1 模板（直播打赏）</button>
+          <button class="btn" id="btn-download-excel2">下载 Excel2 模板（非小程序消费）</button>
         </div>
-      </div>
-
-      <div class="card info">
-        <h2>Excel2 · 非小程序消费数据字段</h2>
-        <div class="form-grid">
-          <div class="form-item"><label>小程序UID（必填）</label><input type="text" value="示例：user_123" disabled /></div>
-          <div class="form-item"><label>消费平台</label><input type="text" value="例：AG小卖部/京酱" disabled /></div>
-          <div class="form-item"><label>消费金额</label><input type="text" value="数值型" disabled /></div>
-          <div class="form-item"><label>归属俱乐部</label><input type="text" value="文本" disabled /></div>
+        <div class="help">字段说明：
+          <ul>
+            <li>Excel1：小程序UID、直播平台、直播平台ID、打赏金额、选手姓名、归属俱乐部</li>
+            <li>Excel2：小程序UID、消费平台、消费金额、归属俱乐部</li>
+          </ul>
         </div>
       </div>
 
@@ -94,6 +89,33 @@
           结果: '原型演示：假设校验通过，已计算成长值'
         };
         pv.textContent = JSON.stringify(summary, null, 2);
+      });
+
+      // 下载 CSV 模板（Excel 可直接打开）
+      function downloadCSV(filename, rows) {
+        const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(url);
+        a.remove();
+      }
+
+      const btn1 = document.getElementById('btn-download-excel1');
+      const btn2 = document.getElementById('btn-download-excel2');
+      btn1.addEventListener('click', () => {
+        downloadCSV('Excel1_直播打赏模板.csv', [[
+          '小程序UID','直播平台','直播平台ID','打赏金额','选手姓名','归属俱乐部'
+        ]]);
+      });
+      btn2.addEventListener('click', () => {
+        downloadCSV('Excel2_非小程序消费模板.csv', [[
+          '小程序UID','消费平台','消费金额','归属俱乐部'
+        ]]);
       });
     });
   </script>

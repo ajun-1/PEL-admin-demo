@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> 审核模块原型</title>
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <style>
+    /* 审核列表表格样式（仅此页） */
+    .table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    .table th, .table td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+    .table th { background: #f9fafb; font-weight: 600; }
+    .table th:first-child, .table td:first-child { padding-left: 0; }
+    .table th:last-child, .table td:last-child { padding-right: 0; }
+    .table th, .table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .table tr:hover { background: #fafafa; }
+    .table col.col-activity { width: 22%; }
+    .table col.col-uid { width: 16%; }
+    .table col.col-shot { width: 14%; }
+    .table col.col-link { width: 18%; }
+    .table col.col-status { width: 14%; }
+    .table col.col-actions { width: 16%; }
+    .table th:nth-child(5), .table td:nth-child(5),
+    .table th:nth-child(6), .table td:nth-child(6) { text-align: center; }
+    .table .btn { padding: 6px 10px; }
+  </style>
+</head>
+<body>
+  <header id="app-header">
+    <div class="brand"> 审核模块原型</div>
+  </header>
+  <main class="container">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="page0_user.html"> 用户管理</a></li>
+          <li><a href="page1_banner.html"> Banner配置</a></li>
+          <li><a href="page2_club.html"> 俱乐部配置</a></li>
+          <li><a href="page7_product.html"> 商品管理</a></li>
+          <li><a href="page6_activity.html"> 活动配置</a></li>
+          <li><a href="page8_review.html"> 审核模块</a></li>
+          <li><a href="page9_feedback.html"> 问题反馈</a></li>
+          <li><a href="page5_import.html"> 非小程序消费导入</a></li>
+          <li><a href="page10_account.html"> 账号管理</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <section class="content">
+      <div class="card">
+        <h2>审核活动列表</h2>
+        <div class="form-grid" style="grid-template-columns: 200px 1fr auto; align-items: end;">
+          <div class="form-item">
+            <label>审核状态</label>
+            <select id="review-status">
+              <option value="全部">全部</option>
+              <option value="待审核" selected>待审核</option>
+              <option value="审核通过">审核通过</option>
+              <option value="审核不通过">审核不通过</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label>按用户ID搜索</label>
+            <input type="text" id="review-uid" placeholder="如 user_001" />
+          </div>
+          <div>
+            <button class="btn" id="btn-review-search">搜索</button>
+          </div>
+        </div>
+        <table class="table" id="review-table">
+          <colgroup>
+            <col class="col-activity" />
+            <col class="col-uid" />
+            <col class="col-shot" />
+            <col class="col-link" />
+            <col class="col-status" />
+            <col class="col-actions" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>活动名称</th>
+              <th>用户ID</th>
+              <th>上传截图</th>
+              <th>上传链接</th>
+              <th>当前状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../assets/js/common.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      ensureAuth();
+      const placeholderImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60'><rect width='80' height='60' fill='%23f0f0f0'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='10' fill='%23999'>截图</text></svg>";
+      const data = [
+        { id:1, activity:'UGC 活动A', uid:'user_001', screenshot: placeholderImg, link:'https://example.com/a', status:'待审核', points:50 },
+        { id:2, activity:'UGC 活动B', uid:'user_002', screenshot: placeholderImg, link:'', status:'待审核', points:30 },
+        { id:3, activity:'投票活动C', uid:'user_003', screenshot:'', link:'https://example.com/c', status:'审核通过', points:10 },
+      ];
+
+      const tbody = document.querySelector('#review-table tbody');
+      const statusSel = document.getElementById('review-status');
+      const uidInput = document.getElementById('review-uid');
+
+      function render(list) {
+        tbody.innerHTML = '';
+        list.forEach(row => {
+          const tr = document.createElement('tr');
+          const imgCell = row.screenshot ? `<img src="${row.screenshot}" alt="proof" style="width:80px;height:60px;object-fit:cover;"/>` : '—';
+          const linkCell = row.link ? `<a href="${row.link}" target="_blank">查看链接</a>` : '—';
+          tr.innerHTML = `
+            <td>${row.activity}</td>
+            <td>${row.uid}</td>
+            <td>${imgCell}</td>
+            <td>${linkCell}</td>
+            <td>${row.status}</td>
+            <td>
+              <button class="btn" data-pass="${row.id}">通过</button>
+              <button class="btn" data-reject="${row.id}">不通过</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function filter() {
+        const st = statusSel.value;
+        const kw = uidInput.value.trim();
+        let list = data.slice();
+        if (st && st !== '全部') list = list.filter(x => x.status === st);
+        if (kw) list = list.filter(x => x.uid.includes(kw));
+        render(list);
+      }
+
+      statusSel.addEventListener('change', filter);
+      document.getElementById('btn-review-search').addEventListener('click', filter);
+      render(data.filter(x=>x.status==='待审核'));
+
+      tbody.addEventListener('click', (e) => {
+        const idPass = e.target.getAttribute('data-pass');
+        const idReject = e.target.getAttribute('data-reject');
+        if (idPass) {
+          const row = data.find(x=>x.id==idPass);
+          row.status = '审核通过';
+          filter();
+        } else if (idReject) {
+          const row = data.find(x=>x.id==idReject);
+          row.status = '审核不通过';
+          filter();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -27,13 +27,15 @@
     <aside class="sidebar">
       <nav>
         <ul>
+          <li><a href="page0_user.html"> 用户管理</a></li>
           <li><a href="page1_banner.html"> Banner配置</a></li>
           <li><a href="page2_club.html"> 俱乐部配置</a></li>
-          <li><a href="page3_shop.html"> 商城商品配置</a></li>
-          <li><a href="page4_points.html"> 积分兑换配置</a></li>
-          <li><a href="page5_import.html"> 非小程序消费导入</a></li>
+          <li><a href="page7_product.html"> 商品管理</a></li>
           <li><a href="page6_activity.html"> 活动配置</a></li>
-          <li><a href="../index.html">返回首页</a></li>
+          <li><a href="page8_review.html"> 审核模块</a></li>
+          <li><a href="page9_feedback.html"> 问题反馈</a></li>
+          <li><a href="page5_import.html"> 非小程序消费导入</a></li>
+          <li><a href="page10_account.html"> 账号管理</a></li>
         </ul>
       </nav>
     </aside>
@@ -175,7 +177,7 @@
               <form id="form-ugc" class="form-grid">
                 <div class="form-item">
                   <label><input type="checkbox" id="ugc-enable-link" /> UGC 创作链接入口（勾选）</label>
-                  <div class="help">说明：勾选后需填写创作链接，后台人工审核内容。</div>
+                  <div class="help">说明：当前不需要填写创作链接或截图，仅需配置积分。</div>
                 </div>
                 <div class="form-item" id="ugc-link-field" style="display:none;">
                   <label>创作链接</label>
@@ -183,6 +185,7 @@
                 </div>
                 <div class="form-item">
                   <label><input type="checkbox" id="ugc-enable-screenshot" /> UGC 创作截图上传入口（勾选）</label>
+                  <div class="help">说明：当前版本不启用截图上传入口。</div>
                 </div>
                 <div class="form-item" id="ugc-screenshot-field" style="display:none;">
                   <label>创作截图</label>
@@ -289,6 +292,7 @@
   </main>
 
   <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/common.js?v=20251106"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // --- 列表数据与弹窗状态 ---
@@ -370,17 +374,11 @@
       typeSel.addEventListener('change', () => { setSubtype(typeSel.value); updateVisibility(); });
       subSel.addEventListener('change', updateVisibility);
 
-      // UGC checkbox toggles
-      const ugcLinkToggle = document.getElementById('ugc-enable-link');
-      const ugcShotToggle = document.getElementById('ugc-enable-screenshot');
+      // UGC入口不展示链接/截图，仅配置积分
       const ugcLinkField = document.getElementById('ugc-link-field');
       const ugcShotField = document.getElementById('ugc-screenshot-field');
-      if (ugcLinkToggle) ugcLinkToggle.addEventListener('change', () => {
-        ugcLinkField.style.display = ugcLinkToggle.checked ? '' : 'none';
-      });
-      if (ugcShotToggle) ugcShotToggle.addEventListener('change', () => {
-        ugcShotField.style.display = ugcShotToggle.checked ? '' : 'none';
-      });
+      if (ugcLinkField) ugcLinkField.style.display = 'none';
+      if (ugcShotField) ugcShotField.style.display = 'none';
 
       // Vote options add/remove
       const addOptBtn = document.getElementById('btn-add-option');

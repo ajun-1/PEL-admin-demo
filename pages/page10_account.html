@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>账号管理原型</title>
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <style>
+    .content-actions { display:flex; justify-content:flex-end; gap:8px; margin-bottom:12px; }
+    .table { width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; }
+    .table th, .table td { padding:10px 12px; border-bottom:1px solid #e5e7eb; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .table th { background:#f9fafb; font-weight:600; }
+    .table tr:hover { background:#fafafa; }
+    .perm-grid { display:grid; grid-template-columns: 240px 1fr 1fr; gap:8px; align-items:center; }
+    .perm-grid .header { font-weight:600; background:#f9fafb; padding:8px; border:1px solid #e5e7eb; }
+    .perm-grid .cell { padding:8px; border:1px solid #e5e7eb; }
+    .help { color:#6b7280; font-size:12px; }
+    /* 创建表单两列布局，与各页面风格统一 */
+    #form-account { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    #form-account .form-item:nth-child(3) { grid-column: 1 / -1; }
+    /* 保证标题与内容左边对齐（统一卡片内边距） */
+    .card h2 { margin: 0 0 12px; }
+
+    /* 编辑弹窗样式，与全站统一 */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 3000; }
+    .modal { background: #fff; width: 900px; max-width: 96vw; max-height: 90vh; overflow: auto; border-radius: 8px; box-shadow: 0 10px 24px rgba(0,0,0,.2); position: relative; z-index: 3001; }
+    .modal-header { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid #eee; font-weight:600; }
+    .modal-body { padding:16px; }
+    .modal-footer { padding:12px 16px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end; }
+    body.modal-open { overflow: hidden; }
+  </style>
+  <script src="../assets/js/common.js"></script>
+</head>
+<body>
+  <header id="app-header">
+    <div class="brand">账号管理</div>
+  </header>
+  <main class="container">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="page0_user.html">用户管理</a></li>
+          <li><a href="page1_banner.html">Banner配置</a></li>
+          <li><a href="page2_club.html">俱乐部配置</a></li>
+          <li><a href="page7_product.html">商品管理</a></li>
+          <li><a href="page6_activity.html">活动配置</a></li>
+          <li><a href="page8_review.html">审核模块</a></li>
+          <li><a href="page9_feedback.html">问题反馈</a></li>
+          <li><a href="page5_import.html">非小程序消费导入</a></li>
+          <li><a href="page10_account.html">账号管理</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <section class="content">
+      <div class="card">
+        <h2>创建账号与权限配置</h2>
+        <form id="form-account" class="form-grid">
+          <div class="form-item">
+            <label>登录名（必选）</label>
+            <input type="text" name="username" required />
+          </div>
+          <div class="form-item">
+            <label>密码（必选）</label>
+            <input type="password" name="password" required />
+          </div>
+          <div class="form-item">
+            <label>账号类型（必选）</label>
+            <select name="type" required>
+              <option value="超级管理员">超级管理员</option>
+              <option value="粉运运营人员">粉运运营人员</option>
+              <option value="俱乐部人员">俱乐部人员</option>
+            </select>
+          </div>
+        </form>
+        <div class="help">说明：在下方勾选权限（分为“查看”和“编辑”），保存账号时将一起记录。</div>
+        <div class="perm-grid" id="perm-grid">
+          <div class="header">功能板块</div>
+          <div class="header">查看</div>
+          <div class="header">编辑</div>
+          <!-- JS 动态生成每一行模块权限 -->
+        </div>
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn primary" id="btn-save">保存账号</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>账号列表</h2>
+        <table class="table" id="account-table">
+          <colgroup>
+            <col style="width:24%" />
+            <col style="width:18%" />
+            <col style="width:50%" />
+            <col style="width:8%" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>登录名</th><th>类型</th><th>权限概览</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const modules = [
+        '用户管理','Banner配置','俱乐部配置','商品管理','活动配置','审核模块','问题反馈','非小程序消费导入'
+      ];
+
+      const grid = document.getElementById('perm-grid');
+      modules.forEach((m) => {
+        const name = document.createElement('div'); name.className='cell'; name.textContent = m;
+        const view = document.createElement('div'); view.className='cell';
+        const edit = document.createElement('div'); edit.className='cell';
+        view.innerHTML = `<label class="inline"><input type="checkbox" name="perm_view" value="${m}" /> 允许查看</label>`;
+        edit.innerHTML = `<label class="inline"><input type="checkbox" name="perm_edit" value="${m}" /> 允许编辑</label>`;
+        grid.appendChild(name); grid.appendChild(view); grid.appendChild(edit);
+      });
+
+      const tableBody = document.querySelector('#account-table tbody');
+      const form = document.getElementById('form-account');
+      const btnSave = document.getElementById('btn-save');
+
+      function summarizePerm(perms) {
+        if (!perms) return '-';
+        const v = (perms.view || []).length; const e = (perms.edit || []).length;
+        return `查看${v}项，编辑${e}项`;
+      }
+
+      function collectPerms() {
+        const views = Array.from(document.querySelectorAll('input[name="perm_view"]:checked')).map(i => i.value);
+        const edits = Array.from(document.querySelectorAll('input[name="perm_edit"]:checked')).map(i => i.value);
+        return { view: views, edit: edits };
+      }
+
+      function allPerms() {
+        return { view: modules.slice(), edit: modules.slice() };
+      }
+
+      function seedSamples() {
+        const admin = { id: Date.now(), username:'admin', type:'超级管理员', perms: allPerms() };
+        const opsEdit = ['活动配置','审核模块','问题反馈','非小程序消费导入'];
+        const ops = { id: Date.now()+1, username:'ops_li', type:'粉运运营人员', perms: { view: modules.slice(), edit: opsEdit } };
+        const clubView = ['俱乐部配置','活动配置','审核模块','商品管理'];
+        const clubEdit = ['俱乐部配置','活动配置'];
+        const club = { id: Date.now()+2, username:'club_zhang', type:'俱乐部人员', perms: { view: clubView, edit: clubEdit } };
+        return [admin, ops, club];
+      }
+
+      function loadAccounts() {
+        let raw = localStorage.getItem('pel:accounts');
+        let list = [];
+        try { list = raw ? JSON.parse(raw) : []; } catch (e) { list = []; }
+        if (!list || list.length === 0) {
+          list = seedSamples();
+          localStorage.setItem('pel:accounts', JSON.stringify(list));
+        }
+        tableBody.innerHTML = '';
+        list.forEach(acc => {
+          const tr = document.createElement('tr');
+          const permSummary = summarizePerm(acc.perms);
+          tr.innerHTML = `<td>${acc.username}</td><td>${acc.type}</td><td>${permSummary}</td>
+                          <td style='text-align:center;'><button class='btn' data-edit='${acc.id}'>编辑</button></td>`;
+          tableBody.appendChild(tr);
+        });
+      }
+
+      btnSave.addEventListener('click', () => {
+        const username = (form.username.value||'').trim();
+        const password = (form.password.value||'');
+        const type = form.type.value;
+        if (!username || !password || !type) { alert('请完整填写登录名、密码与类型'); return; }
+        const perms = collectPerms();
+        const acc = { id: Date.now(), username, type, perms };
+        let list = [];
+        try { list = JSON.parse(localStorage.getItem('pel:accounts')||'[]'); } catch (e) { list = []; }
+        list.push(acc);
+        localStorage.setItem('pel:accounts', JSON.stringify(list));
+        form.reset();
+        document.querySelectorAll('input[name="perm_view"],input[name="perm_edit"]').forEach(i => { i.checked = false; });
+        loadAccounts();
+        alert('账号已保存');
+      });
+
+      // 列表编辑按钮委托（closest 提升兼容性）
+      tableBody.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-edit]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-edit');
+        let list = [];
+        try { list = JSON.parse(localStorage.getItem('pel:accounts')||'[]'); } catch (err) { list = []; }
+        const acc = list.find(a => String(a.id) === String(id));
+        if (!acc) return;
+        openEditModal(acc);
+      });
+
+      function renderPermGrid(container, selected) {
+        container.innerHTML = '';
+        const header1 = document.createElement('div'); header1.className='header'; header1.textContent='功能板块';
+        const header2 = document.createElement('div'); header2.className='header'; header2.textContent='查看';
+        const header3 = document.createElement('div'); header3.className='header'; header3.textContent='编辑';
+        container.appendChild(header1); container.appendChild(header2); container.appendChild(header3);
+        modules.forEach((m) => {
+          const name = document.createElement('div'); name.className='cell'; name.textContent = m;
+          const view = document.createElement('div'); view.className='cell';
+          const edit = document.createElement('div'); edit.className='cell';
+          const checkedV = selected && selected.view && selected.view.includes(m) ? 'checked' : '';
+          const checkedE = selected && selected.edit && selected.edit.includes(m) ? 'checked' : '';
+          view.innerHTML = `<label class="inline"><input type="checkbox" name="perm_view_edit" value="${m}" ${checkedV}/> 允许查看</label>`;
+          edit.innerHTML = `<label class="inline"><input type="checkbox" name="perm_edit_edit" value="${m}" ${checkedE}/> 允许编辑</label>`;
+          container.appendChild(name); container.appendChild(view); container.appendChild(edit);
+        });
+      }
+
+      function collectPermsFrom(container) {
+        const views = Array.from(container.querySelectorAll('input[name="perm_view_edit"]:checked')).map(i => i.value);
+        const edits = Array.from(container.querySelectorAll('input[name="perm_edit_edit"]:checked')).map(i => i.value);
+        return { view: views, edit: edits };
+      }
+
+      function openEditModal(acc) {
+        const overlay = document.getElementById('edit-overlay');
+        const formEdit = document.getElementById('edit-form');
+        const permContainer = document.getElementById('edit-perm-grid');
+        formEdit.edit_id.value = acc.id;
+        formEdit.edit_username.value = acc.username || '';
+        formEdit.edit_password.value = '';
+        formEdit.edit_type.value = acc.type || '粉运运营人员';
+        renderPermGrid(permContainer, acc.perms || { view:[], edit:[] });
+        overlay.style.display = 'flex';
+        document.body.classList.add('modal-open');
+      }
+
+      function closeEditModal() {
+        const overlay = document.getElementById('edit-overlay');
+        overlay.style.display = 'none';
+        document.body.classList.remove('modal-open');
+      }
+
+      document.getElementById('btn-edit-cancel').addEventListener('click', closeEditModal);
+      document.getElementById('btn-edit-close').addEventListener('click', closeEditModal);
+
+      document.getElementById('btn-edit-save').addEventListener('click', () => {
+        const formEdit = document.getElementById('edit-form');
+        const id = formEdit.edit_id.value;
+        let list = [];
+        try { list = JSON.parse(localStorage.getItem('pel:accounts')||'[]'); } catch (err) { list = []; }
+        const idx = list.findIndex(a => String(a.id) === String(id));
+        if (idx === -1) { alert('记录不存在'); return; }
+        const perms = collectPermsFrom(document.getElementById('edit-perm-grid'));
+        list[idx] = {
+          ...list[idx],
+          username: (formEdit.edit_username.value||'').trim(),
+          type: formEdit.edit_type.value,
+          password: (formEdit.edit_password.value||list[idx].password||'') ,
+          perms
+        };
+        localStorage.setItem('pel:accounts', JSON.stringify(list));
+        closeEditModal();
+        loadAccounts();
+        alert('账号已更新');
+      });
+
+      loadAccounts();
+    });
+  </script>
+
+  <!-- 编辑弹窗 -->
+  <div id="edit-overlay" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div>编辑账号</div>
+        <button class="btn" id="btn-edit-close">关闭</button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-form" class="form-grid">
+          <input type="hidden" name="edit_id" />
+          <div class="form-item">
+            <label>登录名（必选）</label>
+            <input type="text" name="edit_username" required />
+          </div>
+          <div class="form-item">
+            <label>密码（可选）</label>
+            <input type="password" name="edit_password" />
+          </div>
+          <div class="form-item">
+            <label>账号类型（必选）</label>
+            <select name="edit_type" required>
+              <option value="超级管理员">超级管理员</option>
+              <option value="粉运运营人员">粉运运营人员</option>
+              <option value="俱乐部人员">俱乐部人员</option>
+            </select>
+          </div>
+        </form>
+        <div class="help">说明：可在下方调整该账号的查看/编辑权限。</div>
+        <div class="perm-grid" id="edit-perm-grid"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" id="btn-edit-save">保存修改</button>
+        <button class="btn" id="btn-edit-cancel">取消</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

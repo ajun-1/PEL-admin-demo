@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> 用户管理原型</title>
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <style>
+    /* 用户管理表格样式，仅此页生效 */
+    .table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    .table th, .table td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+    .table th { background: #f9fafb; font-weight: 600; }
+    .table th:first-child, .table td:first-child { padding-left: 0; }
+    .table th:last-child, .table td:last-child { padding-right: 0; }
+    .table th, .table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .table tr:hover { background: #fafafa; }
+    .table col.col-name { width: 18%; }
+    .table col.col-uid { width: 16%; }
+    .table col.col-join { width: 22%; }
+    .table col.col-levels { width: 22%; }
+    .table col.col-status { width: 10%; }
+    .table col.col-actions { width: 12%; }
+    .table th:nth-child(5), .table td:nth-child(5),
+    .table th:nth-child(6), .table td:nth-child(6) { text-align: center; }
+    .table .btn { padding: 6px 10px; }
+  </style>
+</head>
+<body>
+  <header id="app-header">
+    <div class="brand"> 用户管理原型</div>
+  </header>
+  <main class="container">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="page0_user.html"> 用户管理</a></li>
+          <li><a href="page1_banner.html"> Banner配置</a></li>
+          <li><a href="page2_club.html"> 俱乐部配置</a></li>
+          <li><a href="page7_product.html"> 商品管理</a></li>
+          <li><a href="page6_activity.html"> 活动配置</a></li>
+          <li><a href="page8_review.html"> 审核模块</a></li>
+          <li><a href="page9_feedback.html"> 问题反馈</a></li>
+          <li><a href="page5_import.html"> 非小程序消费导入</a></li>
+          <li><a href="page10_account.html"> 账号管理</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <section class="content">
+      <div class="card">
+        <h2>用户列表</h2>
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr auto; align-items: end;">
+          <div class="form-item">
+            <label>搜索（名称/UID）</label>
+            <input type="text" id="user-search" placeholder="如：张三 或 user_001" />
+          </div>
+          <div class="form-item">
+            <label>按俱乐部筛选</label>
+            <select id="club-filter">
+              <option value="">全部</option>
+              <option>JDG</option>
+              <option>TianBa</option>
+              <option>WBG</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label>状态</label>
+            <select id="status-filter">
+              <option value="">全部</option>
+              <option>正常</option>
+              <option>禁用</option>
+            </select>
+          </div>
+          <div>
+            <button class="btn" id="btn-user-search">搜索</button>
+          </div>
+        </div>
+        <table class="table" id="user-table">
+          <colgroup>
+            <col class="col-name" />
+            <col class="col-uid" />
+            <col class="col-join" />
+            <col class="col-levels" />
+            <col class="col-status" />
+            <col class="col-actions" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>名称</th>
+              <th>UID</th>
+              <th>加入俱乐部</th>
+              <th>俱乐部等级</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- 已移除编辑用户弹窗：操作改为行内“禁用/恢复” -->
+    </section>
+  </main>
+
+  <script src="../assets/js/common.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      ensureAuth();
+      const clubs = ['JDG','TianBa','WBG'];
+      const users = [
+        { name:'张三', uid:'user_001', join:['JDG','WBG'], levels:{JDG:'Lv2', WBG:'Lv3'}, status:'正常' },
+        { name:'李四', uid:'user_002', join:['TianBa'], levels:{TianBa:'Lv1'}, status:'正常' },
+        { name:'王五', uid:'user_003', join:[], levels:{}, status:'禁用' },
+      ];
+
+      const tbody = document.querySelector('#user-table tbody');
+      const q = document.getElementById('user-search');
+      const clubFilter = document.getElementById('club-filter');
+      const statusFilter = document.getElementById('status-filter');
+      const btnSearch = document.getElementById('btn-user-search');
+
+      function render(list) {
+        tbody.innerHTML = '';
+        list.forEach(u => {
+          const tr = document.createElement('tr');
+          const clubsText = (u.join||[]).join('、') || '未加入';
+          const levelsText = Object.keys(u.levels||{}).length ? Object.entries(u.levels).map(([c,l])=>`${c}:${l}`).join('、') : '—';
+          tr.innerHTML = `
+            <td>${u.name}</td>
+            <td>${u.uid}</td>
+            <td>${clubsText}</td>
+            <td>${levelsText}</td>
+            <td>${u.status}</td>
+            <td><button class="btn" data-toggle="${u.uid}">${u.status === '正常' ? '禁用' : '恢复'}</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function filter() {
+        const kw = q.value.trim();
+        const cf = clubFilter.value;
+        const sf = statusFilter.value;
+        let list = users.slice();
+        if (kw) list = list.filter(u => u.name.includes(kw) || u.uid.includes(kw));
+        if (cf) list = list.filter(u => u.join.includes(cf));
+        if (sf) list = list.filter(u => u.status === sf);
+        render(list);
+      }
+
+      btnSearch.addEventListener('click', filter);
+      clubFilter.addEventListener('change', filter);
+      statusFilter.addEventListener('change', filter);
+      render(users);
+
+      // 行内状态切换：正常→禁用；禁用→恢复（设为正常）
+      tbody.addEventListener('click', (e) => {
+        const uid = e.target.getAttribute('data-toggle');
+        if (!uid) return;
+        const u = users.find(x=>x.uid===uid);
+        u.status = u.status === '正常' ? '禁用' : '正常';
+        filter();
+      });
+    });
+  </script>
+</body>
+</html>

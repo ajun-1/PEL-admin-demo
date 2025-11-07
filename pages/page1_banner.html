@@ -14,13 +14,15 @@
     <aside class="sidebar">
       <nav>
         <ul>
+          <li><a href="page0_user.html"> 用户管理</a></li>
           <li><a href="page1_banner.html"> Banner配置</a></li>
           <li><a href="page2_club.html"> 俱乐部配置</a></li>
-          <li><a href="page3_shop.html"> 商城商品配置</a></li>
-          <li><a href="page4_points.html"> 积分兑换配置</a></li>
-          <li><a href="page5_import.html"> 非小程序消费导入</a></li>
+          <li><a href="page7_product.html"> 商品管理</a></li>
           <li><a href="page6_activity.html"> 活动配置</a></li>
-          <li><a href="../index.html">返回首页</a></li>
+          <li><a href="page8_review.html"> 审核模块</a></li>
+          <li><a href="page9_feedback.html"> 问题反馈</a></li>
+          <li><a href="page5_import.html"> 非小程序消费导入</a></li>
+          <li><a href="page10_account.html"> 账号管理</a></li>
         </ul>
       </nav>
     </aside>
@@ -76,10 +78,44 @@
               <span class="muted">控制前端是否展示</span>
             </div>
           </div>
+
+          
         </form>
         <div class="btn-row">
           <button class="btn primary" id="btn-preview">预览配置</button>
           <button class="btn" id="btn-publish-1">确认并发布</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>平台通知</h2>
+        <form id="form-top-notice" class="form-grid">
+          <div class="form-item">
+            <label>通知内容（必选）</label>
+            <input type="text" name="top_notice_text" placeholder="请输入公告文案内容" required />
+            <div class="help">说明：公告文案内容</div>
+          </div>
+          <div class="form-item">
+            <label>发布时间（必选）</label>
+            <input type="datetime-local" name="top_notice_start" required />
+            <div class="help">说明：公告开始展示时间</div>
+          </div>
+          <div class="form-item">
+            <label>失效时间（必选）</label>
+            <input type="datetime-local" name="top_notice_end" required />
+            <div class="help">说明：公告下线时间</div>
+          </div>
+          <div class="form-item">
+            <label>是否展示（必选）</label>
+            <div class="switch">
+              <input type="checkbox" name="top_notice_show" checked required />
+              <span class="muted">控制是否在前端展示</span>
+            </div>
+          </div>
+        </form>
+        <div class="btn-row">
+          <button class="btn" id="btn-preview-top-notice">预览配置</button>
+          <button class="btn" id="btn-publish-top-notice">确认并发布</button>
         </div>
       </div>
 
@@ -117,16 +153,20 @@
               <span class="muted">控制前端是否展示</span>
             </div>
           </div>
+
+          
         </form>
         <div class="btn-row">
           <button class="btn" id="btn-preview-2">预览配置</button>
           <button class="btn" id="btn-publish-2">确认并发布</button>
         </div>
       </div>
+
+     
     </section>
   </main>
 
-  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/common.js?v=20251106"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const typeSel = document.getElementById('top-content-type');

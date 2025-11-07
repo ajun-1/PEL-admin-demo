@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> 问题反馈模块原型</title>
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <style>
+    /* 处理反馈弹窗样式 */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(10, 18, 40, .35); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 2000; }
+    .modal { width: 960px; max-width: 96vw; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 20px 40px rgba(15, 23, 42, .2); }
+    .modal-header { display:flex; align-items:center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #edf2f7; font-weight: 600; }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 16px 20px; border-top: 1px solid #edf2f7; display:flex; gap: 10px; }
+    body.modal-open { overflow: hidden; }
+    /* 弹窗内表单布局优化 */
+    .modal .form-grid { grid-template-columns: 1fr 320px; gap: 16px 24px; }
+    .modal .form-grid .form-item[style*="grid-column: 1 / -1;"] textarea { min-height: 140px; }
+    .modal .btn.primary { background: #4f46e5; color: #fff; border-color: transparent; }
+  </style>
+  <style>
+    /* 反馈列表表格样式（仅此页） */
+    .table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    .table th, .table td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+    .table th { background: #f9fafb; font-weight: 600; }
+    .table th:first-child, .table td:first-child { padding-left: 0; }
+    .table th:last-child, .table td:last-child { padding-right: 0; }
+    .table th, .table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .table tr:hover { background: #fafafa; }
+    .table col.col-type { width: 8%; }
+    .table col.col-uid { width: 10%; }
+    .table col.col-content { width: 24%; }
+    .table col.col-proof { width: 8%; }
+    .table col.col-name { width: 8%; }
+    .table col.col-contact { width: 12%; }
+    .table col.col-time { width: 12%; }
+    .table col.col-status { width: 8%; }
+    .table col.col-remark { width: 6%; }
+    .table col.col-actions { width: 4%; }
+    .table th:nth-child(4), .table td:nth-child(4),
+    .table th:nth-child(8), .table td:nth-child(8),
+    .table th:nth-child(10), .table td:nth-child(10) { text-align: center; }
+    .table .btn { padding: 6px 10px; }
+  </style>
+</head>
+<body>
+  <header id="app-header">
+    <div class="brand"> 问题反馈模块原型</div>
+  </header>
+  <main class="container">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="page0_user.html"> 用户管理</a></li>
+          <li><a href="page1_banner.html"> Banner配置</a></li>
+          <li><a href="page2_club.html"> 俱乐部配置</a></li>
+          <li><a href="page7_product.html"> 商品管理</a></li>
+          <li><a href="page6_activity.html"> 活动配置</a></li>
+          <li><a href="page8_review.html"> 审核模块</a></li>
+          <li><a href="page9_feedback.html"> 问题反馈</a></li>
+          <li><a href="page5_import.html"> 非小程序消费导入</a></li>
+          <li><a href="page10_account.html"> 账号管理</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <section class="content">
+      <div class="card">
+        <h2>问题反馈列表</h2>
+        <div class="form-grid" style="grid-template-columns: 200px 200px 1fr auto; align-items: end;">
+          <div class="form-item">
+            <label>反馈类型</label>
+            <select id="fb-type">
+              <option value="全部">全部</option>
+              <option>活动问题</option>
+              <option>积分兑换问题</option>
+              <option>其他问题</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label>处理状态</label>
+            <select id="fb-status">
+              <option value="全部">全部</option>
+              <option>未处理</option>
+              <option>已处理</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label>搜索（用户ID/联系方式）</label>
+            <input type="text" id="fb-search" placeholder="user_001 / 手机或邮箱" />
+          </div>
+          <div>
+            <button class="btn" id="btn-fb-search">搜索</button>
+          </div>
+        </div>
+        <table class="table" id="fb-table">
+          <colgroup>
+            <col class="col-type" />
+            <col class="col-uid" />
+            <col class="col-content" />
+            <col class="col-proof" />
+            <col class="col-name" />
+            <col class="col-contact" />
+            <col class="col-time" />
+            <col class="col-status" />
+            <col class="col-remark" />
+            <col class="col-actions" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>类型</th>
+              <th>用户ID</th>
+              <th>反馈内容</th>
+              <th>凭证</th>
+              <th>联系人</th>
+              <th>联系方式</th>
+              <th>提交时间</th>
+              <th>状态</th>
+              <th>处理备注</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- 处理反馈弹窗 -->
+      <div class="modal-overlay" id="fb-modal-overlay">
+        <div class="modal">
+          <div class="modal-header">
+            <div>处理反馈</div>
+            <button class="btn" id="btn-fb-close">关闭</button>
+          </div>
+          <div class="modal-body">
+            <form id="fb-form" class="form-grid">
+              <div class="form-item" style="grid-column: 1 / -1;">
+                <label>处理备注</label>
+                <textarea name="remark" rows="3" placeholder="填写处理说明"></textarea>
+              </div>
+              <div class="form-item">
+                <label>状态</label>
+                <select name="status">
+                  <option>未处理</option>
+                  <option>已处理</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn primary" id="btn-fb-save">保存处理</button>
+            <button class="btn" id="btn-fb-cancel">取消</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../assets/js/common.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      ensureAuth();
+      const placeholderImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60'><rect width='80' height='60' fill='%23f0f0f0'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='10' fill='%23999'>凭证</text></svg>";
+      const data = [
+        { id:1, type:'活动问题', uid:'user_001', content:'活动页面无法提交', proofImg: placeholderImg, proofLink:'', name:'张三', contact:'138****0001', time:'2025-11-01 10:00', status:'未处理', remark:'' },
+        { id:2, type:'积分兑换问题', uid:'user_002', content:'兑换失败', proofImg:'', proofLink:'https://example.com/proof2', name:'李四', contact:'test@example.com', time:'2025-11-02 14:30', status:'未处理', remark:'' },
+        { id:3, type:'其他问题', uid:'user_003', content:'建议增加公告功能', proofImg:'', proofLink:'', name:'王五', contact:'139****0003', time:'2025-11-03 09:20', status:'已处理', remark:'已修复并回访' },
+      ];
+
+      const tbody = document.querySelector('#fb-table tbody');
+      const typeSel = document.getElementById('fb-type');
+      const statusSel = document.getElementById('fb-status');
+      const q = document.getElementById('fb-search');
+
+      function render(list) {
+        tbody.innerHTML = '';
+        list.forEach(row => {
+          const tr = document.createElement('tr');
+          const proof = row.proofImg ? `<img src="${row.proofImg}" style="width:80px;height:60px;object-fit:cover;"/>` : (row.proofLink ? `<a href="${row.proofLink}" target="_blank">查看链接</a>` : '—');
+          tr.innerHTML = `
+            <td>${row.type}</td>
+            <td>${row.uid}</td>
+            <td title="${row.content}">${row.content}</td>
+            <td>${proof}</td>
+            <td>${row.name}</td>
+            <td>${row.contact}</td>
+            <td>${row.time}</td>
+            <td>${row.status}</td>
+            <td>${row.remark || '—'}</td>
+            <td><button class="btn" data-handle="${row.id}">处理</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function filter() {
+        const t = typeSel.value;
+        const s = statusSel.value;
+        const kw = q.value.trim();
+        let list = data.slice();
+        if (t && t !== '全部') list = list.filter(x => x.type === t);
+        if (s && s !== '全部') list = list.filter(x => x.status === s);
+        if (kw) list = list.filter(x => x.uid.includes(kw) || (x.contact||'').includes(kw));
+        render(list);
+      }
+
+      typeSel.addEventListener('change', filter);
+      statusSel.addEventListener('change', filter);
+      document.getElementById('btn-fb-search').addEventListener('click', filter);
+      render(data);
+
+      // 处理弹窗
+      const overlay = document.getElementById('fb-modal-overlay');
+      const form = document.getElementById('fb-form');
+      let currentId = null;
+      tbody.addEventListener('click', (e) => {
+        const id = e.target.getAttribute('data-handle');
+        if (!id) return;
+        currentId = Number(id);
+        const row = data.find(x=>x.id===currentId);
+        form.remark.value = row.remark || '';
+        form.status.value = row.status;
+        overlay.style.display = 'flex';
+        document.body.classList.add('modal-open');
+      });
+
+      function closeModal(){ overlay.style.display='none'; document.body.classList.remove('modal-open'); }
+      document.getElementById('btn-fb-close').addEventListener('click', closeModal);
+      document.getElementById('btn-fb-cancel').addEventListener('click', closeModal);
+      document.getElementById('btn-fb-save').addEventListener('click', () => {
+        if (currentId==null) return;
+        const row = data.find(x=>x.id===currentId);
+        row.remark = form.remark.value.trim();
+        row.status = form.status.value;
+        closeModal();
+        filter();
+      });
+    });
+  </script>
+</body>
+</html>
