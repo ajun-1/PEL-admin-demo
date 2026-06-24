@@ -1,76 +1,184 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>配置中心 — PEL运营后台</title>
-<link rel="stylesheet" href="../assets/css/base.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> Banner配置原型</title>
+  <link rel="stylesheet" href="../assets/css/base.css">
 </head>
 <body>
-<header id="app-header"><div class="brand">PEL 分之一 — 运营管理后台</div></header>
-<main class="container">
-<aside class="sidebar">
-      <nav><ul>
-        <li><a href="page0_user.html">用户管理</a></li>
-        <li><a href="page1_banner.html" class="active">配置中心</a></li>
-        <li><a href="page2_club.html">俱乐部管理</a></li>
-        <li><a href="page6_activity.html">活动管理（UGC/投票/线下/裂变）</a></li>
-        <li><a href="page7_product.html">积分兑换商品</a></li>
-        <li><a href="page8_review.html">审核中心</a></li>
-        <li><a href="page5_import.html">数据导入</a></li>
-        <li><a href="page9_feedback.html">问题反馈</a></li>
-        
-      </ul></nav></aside>
-<section class="content">
+  <header id="app-header">
+    <div class="brand"> Banner配置原型</div>
+  </header>
+  <main class="container">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="page0_user.html">用户管理</a></li>
+          <li><a href="page1_banner.html">配置中心</a></li>
+          <li><a href="page2_club.html">俱乐部管理</a></li>
+          <li><a href="page6_activity.html">活动管理</a></li>
+          <li><a href="page7_product.html">积分兑换商品</a></li>
+          <li><a href="page8_review.html">审核中心</a></li>
+          <li><a href="page5_import.html">数据导入</a></li>
+          <li><a href="page9_feedback.html">问题反馈</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <section class="content">
+      <div class="card">
+        <h2>顶部 Banner 配置能力</h2>
+        <form id="form-top-banner" class="form-grid">
+          <div class="form-item">
+            <label>选择 Banner 位（必选）</label>
+            <select name="top_slot" required>
+              <option value="位1">位1</option>
+              <option value="位2">位2</option>
+              <option value="位3">位3</option>
+            </select>
+            <div class="help">说明：选择对应的 banner 位置进行编辑</div>
+          </div>
+          <div class="form-item">
+            <label>Banner 图片（必选）</label>
+            <input type="file" accept="image/*" name="top_image" required />
+            <div class="help">说明：Banner 展示主图</div>
+          </div>
+          <div class="form-item">
+            <label>内容类型（链接或通知文本）</label>
+            <select name="top_content_type" id="top-content-type">
+              <option value="link">H5 链接</option>
+              <option value="text">通知内容</option>
+            </select>
+          </div>
+          <div class="form-item" id="top-link-wrap">
+            <label>H5 链接（必选）</label>
+            <input type="url" name="top_link" placeholder="https://..." required />
+            <div class="help">说明：跳转的 H5 页面地址</div>
+          </div>
+          <div class="form-item" id="top-text-wrap" style="display:none;">
+            <label>通知内容（必选）</label>
+            <textarea name="top_text" placeholder="请输入通知文案"></textarea>
+            <div class="help">说明：通知文案内容</div>
+          </div>
+          <div class="form-item">
+            <label>开始时间（必选）</label>
+            <input type="datetime-local" name="top_start" required data-auto-now="true" />
+            <div class="help">说明：Banner 上线时间</div>
+          </div>
+          <div class="form-item">
+            <label>结束时间（必选）</label>
+            <input type="datetime-local" name="top_end" required />
+            <div class="help">说明：Banner 下线时间</div>
+          </div>
+          <div class="form-item">
+            <label>是否展示（必选）</label>
+            <div class="switch">
+              <input type="checkbox" name="top_show" checked />
+              <span class="muted">控制前端是否展示</span>
+            </div>
+          </div>
 
-<div class="card"><h2>顶部 Banner 轮播</h2>
-<p class="help">C端：自动轮播5秒，底部指示器，点击跳转目标。最多3张，按顺序排列。</p>
-<table class="table"><thead><tr><th>排序</th><th>封面图</th><th>跳转类型</th><th>跳转目标</th><th>展示时间</th><th>状态</th><th>操作</th></tr></thead><tbody>
-<tr><td>1</td><td>[封面]</td><td>H5链接</td><td>https://pel.qq.com/act</td><td>06-01~06-30</td><td>上线</td><td><button class="btn">编辑</button> <button class="btn">下线</button></td></tr>
-<tr><td>2</td><td>[封面]</td><td>原生页面</td><td>活动合集</td><td>06-01~06-30</td><td>上线</td><td><button class="btn">编辑</button> <button class="btn">下线</button></td></tr>
-</tbody></table>
-<button class="btn primary" style="margin-top:12px">+ 新增 Banner</button></div>
+          
+        </form>
+        <div class="btn-row">
+          <button class="btn primary" id="btn-preview">预览配置</button>
+          <button class="btn" id="btn-publish-1">确认并发布</button>
+        </div>
+      </div>
 
-<div class="card" style="margin-top:20px"><h2>平台通知</h2>
-<p class="help">C端：喇叭icon+滚动文字，点击跳转详情。最多3条，置顶优先+时间倒序。</p>
-<table class="table"><thead><tr><th>标题</th><th>类型</th><th>置顶</th><th>发布时间</th><th>状态</th><th>操作</th></tr></thead><tbody>
-<tr><td>系统升级公告</td><td>富文本</td><td>是</td><td>2026-06-20</td><td>已发布</td><td><button class="btn">编辑</button> <button class="btn">下线</button></td></tr>
-<tr><td>积分上新通知</td><td>纯文本</td><td>否</td><td>2026-06-18</td><td>已发布</td><td><button class="btn">编辑</button> <button class="btn">下线</button></td></tr>
-</tbody></table>
-<button class="btn primary" style="margin-top:12px">+ 新增通知</button></div>
+      <div class="card">
+        <h2>平台通知</h2>
+        <form id="form-top-notice" class="form-grid">
+          <div class="form-item">
+            <label>通知内容（必选）</label>
+            <input type="text" name="top_notice_text" placeholder="请输入公告文案内容" required />
+            <div class="help">说明：公告文案内容</div>
+          </div>
+          <div class="form-item">
+            <label>发布时间（必选）</label>
+            <input type="datetime-local" name="top_notice_start" required />
+            <div class="help">说明：公告开始展示时间</div>
+          </div>
+          <div class="form-item">
+            <label>失效时间（必选）</label>
+            <input type="datetime-local" name="top_notice_end" required />
+            <div class="help">说明：公告下线时间</div>
+          </div>
+          <div class="form-item">
+            <label>是否展示（必选）</label>
+            <div class="switch">
+              <input type="checkbox" name="top_notice_show" checked required />
+              <span class="muted">控制是否在前端展示</span>
+            </div>
+          </div>
+        </form>
+        <div class="btn-row">
+          <button class="btn" id="btn-preview-top-notice">预览配置</button>
+          <button class="btn" id="btn-publish-top-notice">确认并发布</button>
+        </div>
+      </div>
 
-<div class="card" style="margin-top:20px"><h2>快捷入口</h2>
-<p class="help">首页固定3入口：活动合集、邀请有礼、赛事报名。可配可见条件。</p>
+      <div class="card">
+        <h2>活动 Banner 配置能力</h2>
+        <form id="form-activity-banner" class="form-grid">
+          <div class="form-item">
+            <label>活动展示 Banner（123 号位）选择（必选）</label>
+            <select name="act_slot" required>
+              <option value="1号位">1号位</option>
+              <option value="2号位">2号位</option>
+              <option value="3号位">3号位</option>
+            </select>
+            <div class="help">说明：展示对应选中活动</div>
+          </div>
+          <div class="form-item">
+            <label>选择活动（必选）</label>
+            <select name="act_activity" required>
+              <option value="">请选择活动</option>
+              <option value="活动A">活动A</option>
+              <option value="活动B">活动B</option>
+              <option value="活动C">活动C</option>
+            </select>
+            <div class="help">说明：Banner 展示对应选中活动</div>
+          </div>
+          <div class="form-item">
+            <label>Banner 封面图（可选）</label>
+            <input type="file" accept="image/*" name="act_cover" />
+            <div class="help">说明：未选择则沿用活动封面图</div>
+          </div>
+          <div class="form-item">
+            <label>是否展示（必选）</label>
+            <div class="switch">
+              <input type="checkbox" name="act_show" checked />
+              <span class="muted">控制前端是否展示</span>
+            </div>
+          </div>
 
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-<div><label>名称</label><input value="活动合集" style="width:100%"/></div>
-<div><label>跳转</label><select style="width:100%"><option>活动合集页</option></select></div>
-<div><label>可见条件</label><select style="width:100%"><option>所有人可见</option><option>需登录</option><option>需加俱乐部</option></select></div>
-</div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px">
-<div><label>名称</label><input value="邀请有礼" style="width:100%"/></div>
-<div><label>跳转</label><select style="width:100%"><option>裂变页</option></select></div>
-<div><label>可见条件</label><select style="width:100%"><option>需登录</option><option>需登录</option><option>需加俱乐部</option></select></div>
-</div>
-<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px">
-<div><label>名称</label><input value="赛事报名" style="width:100%"/></div>
-<div><label>跳转</label><select style="width:100%"><option>赛事报名页</option></select></div>
-<div><label>可见条件</label><select style="width:100%"><option>需登录</option><option>需登录</option><option>需加俱乐部</option></select></div>
-</div>
-<button class="btn primary" style="margin-top:12px">保存</button></div>
+          
+        </form>
+        <div class="btn-row">
+          <button class="btn" id="btn-preview-2">预览配置</button>
+          <button class="btn" id="btn-publish-2">确认并发布</button>
+        </div>
+      </div>
 
-<div class="card" style="margin-top:20px"><h2>热门活动 Banner</h2>
-<p class="help">C端：3张横铺卡片+封面+标题，点击跳转。按权重排序。</p>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-<div><label>关联活动</label><select style="width:100%"><option>UGC创作征集</option><option>年度投票</option><option>线下见面会</option></select></div>
-<div><label>权重</label><input type="number" min="1" max="99" value="1" style="width:100%"/></div>
-</div>
-<button class="btn primary" style="margin-top:12px">保存</button></div>
+     
+    </section>
+  </main>
 
-</section>
-</main>
-<script src="../assets/js/common.js"></script>
-<script>document.addEventListener('DOMContentLoaded',()=>{});</script>
+  <script src="../assets/js/common.js?v=20251106"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const typeSel = document.getElementById('top-content-type');
+      const linkWrap = document.getElementById('top-link-wrap');
+      const textWrap = document.getElementById('top-text-wrap');
+      const sync = () => {
+        const isLink = typeSel.value === 'link';
+        linkWrap.style.display = isLink ? '' : 'none';
+        textWrap.style.display = isLink ? 'none' : '';
+      };
+      typeSel.addEventListener('change', sync);
+      sync();
+    });
+  </script>
 </body>
 </html>

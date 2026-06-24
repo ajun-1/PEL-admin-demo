@@ -1,67 +1,122 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>数据导入 — PEL运营后台</title>
-<link rel="stylesheet" href="../assets/css/base.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> 非小程序消费数据导入原型</title>
+  <link rel="stylesheet" href="../assets/css/base.css">
 </head>
 <body>
-<header id="app-header"><div class="brand">PEL 分之一 — 运营管理后台</div></header>
-<main class="container">
-<aside class="sidebar">
-      <nav><ul>
-        <li><a href="page0_user.html">用户管理</a></li>
-        <li><a href="page1_banner.html">配置中心</a></li>
-        <li><a href="page2_club.html">俱乐部管理</a></li>
-        <li><a href="page6_activity.html">活动管理（UGC/投票/线下/裂变）</a></li>
-        <li><a href="page7_product.html">积分兑换商品</a></li>
-        <li><a href="page8_review.html">审核中心</a></li>
-        <li><a href="page5_import.html" class="active">数据导入</a></li>
-        <li><a href="page9_feedback.html">问题反馈</a></li>
-        
-      </ul></nav></aside>
-<section class="content">
+  <header id="app-header">
+    <div class="brand"> 非小程序消费数据导入原型</div>
+  </header>
+  <main class="container">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="page0_user.html">用户管理</a></li>
+          <li><a href="page1_banner.html">配置中心</a></li>
+          <li><a href="page2_club.html">俱乐部管理</a></li>
+          <li><a href="page6_activity.html">活动管理</a></li>
+          <li><a href="page7_product.html">积分兑换商品</a></li>
+          <li><a href="page8_review.html">审核中心</a></li>
+          <li><a href="page5_import.html">数据导入</a></li>
+          <li><a href="page9_feedback.html">问题反馈</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <section class="content">
+      <div class="card">
+        <h2>导入Excel文件</h2>
+        <form id="form-import" class="form-grid">
+          <div class="form-item">
+            <label>导入类型（必选）</label>
+            <select name="import_type" id="import-type" required>
+              <option value="excel1">Excel1 · 粉丝直播打赏数据</option>
+              <option value="excel2">Excel2 · 非小程序消费数据</option>
+            </select>
+          </div>
+          <div class="form-item" style="grid-column: 1 / -1;">
+            <label>选择Excel文件（必选）</label>
+            <input type="file" name="excel" accept=".xls,.xlsx" required />
+            <div class="help">说明：上传后将按字段规则校验并计算成长值（原型不做真实解析）。</div>
+          </div>
+        </form>
+        <div class="btn-row">
+          <button class="btn primary" id="btn-validate">模拟导入校验</button>
+        </div>
+        <div id="preview" class="preview"></div>
+      </div>
 
-<div class="card"><h2>导入Excel文件</h2>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-<div><label>导入类型</label><select><option>成长值导入</option><option>积分导入</option></select></div>
-<div><label>选择文件</label><input type="file" accept=".xlsx,.csv"/></div>
-</div>
-<button class="btn primary">开始导入</button>
-<div id="preview" style="margin-top:12px;background:#f1f5f9;padding:10px;border-radius:6px;font-size:13px;white-space:pre-wrap">预览结果将在此显示</div></div>
+      <div class="card info">
+        <h2>Excel模板下载</h2>
+        <p>以下为两类导入模板，采用 CSV 格式，Excel 可直接打开编辑：</p>
+        <div class="btn-row">
+          <button class="btn" id="btn-download-excel1">下载 Excel1 模板（直播打赏）</button>
+          <button class="btn" id="btn-download-excel2">下载 Excel2 模板（非小程序消费）</button>
+        </div>
+        <div class="help">字段说明：
+          <ul>
+            <li>Excel1：小程序UID、直播平台、直播平台ID、打赏金额、选手姓名、归属俱乐部</li>
+            <li>Excel2：小程序UID、消费平台、消费金额、归属俱乐部</li>
+          </ul>
+        </div>
+      </div>
 
-<div class="card" style="margin-top:20px"><h2>Excel模板下载</h2>
-<p style="color:#6b7280;font-size:13px;margin-bottom:12px">模板列：UID | 数量 | 源头说明 | 关联业务ID</p>
-<div style="display:flex;gap:8px">
-<button class="btn" id="btn-dl-growth">下载成长值导入模板</button>
-<button class="btn" id="btn-dl-points">下载积分导入模板</button>
-</div></div>
+      <div class="card info">
+        <h2>运营流程说明</h2>
+        <ul>
+          <li>俱乐部收集粉丝打赏/消费数据 → 汇总生成标准Excel。</li>
+          <li>运营人员导入后台 → 自动计算成长值（原型为模拟）。</li>
+        </ul>
+      </div>
+    </section>
+  </main>
 
-<div class="card" style="margin-top:20px"><h2>运营流程说明</h2>
-<ol style="color:#4b5563;font-size:14px;line-height:2">
-<li>下载对应类型的Excel模板</li>
-<li>按模板格式填写（UID必填，数量为正整数）</li>
-<li>上传文件，系统自动校验格式和数据有效性</li>
-<li>校验通过后数据即时生效，积分/成长值到账</li>
-<li>校验失败的行标红提示，修正后重新上传</li>
-</ol></div>
+  <script src="../assets/js/common.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('form-import');
+      const btn = document.getElementById('btn-validate');
+      const pv = document.getElementById('preview');
+      btn.addEventListener('click', () => {
+        const d = collectFormData(form);
+        const summary = {
+          导入类型: d.import_type === 'excel1' ? '直播打赏数据' : '非小程序消费数据',
+          文件名: d.excel || '未选择',
+          校验: '示例校验：UID/平台ID为必填，金额需为数值',
+          结果: '原型演示：假设校验通过，已计算成长值'
+        };
+        pv.textContent = JSON.stringify(summary, null, 2);
+      });
 
-<script>
-function dlCSV(fn,rows){
-const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
-const b=new Blob([csv],{type:'text/csv;charset=utf-8'});
-const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;
-document.body.appendChild(a);a.click();URL.revokeObjectURL(a.href);a.remove();
-}
-document.getElementById('btn-dl-growth').onclick=()=>dlCSV('成长值导入模板.csv',[['UID','成长值数量','源头说明','关联业务ID']]);
-document.getElementById('btn-dl-points').onclick=()=>dlCSV('积分导入模板.csv',[['UID','积分数量','源头说明','关联业务ID']]);
-</script>
+      // 下载 CSV 模板（Excel 可直接打开）
+      function downloadCSV(filename, rows) {
+        const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(url);
+        a.remove();
+      }
 
-</section>
-</main>
-<script src="../assets/js/common.js"></script>
-<script>document.addEventListener('DOMContentLoaded',()=>{});</script>
+      const btn1 = document.getElementById('btn-download-excel1');
+      const btn2 = document.getElementById('btn-download-excel2');
+      btn1.addEventListener('click', () => {
+        downloadCSV('Excel1_成长值导入模板.csv', [[
+          '小程序UID','直播平台','直播平台ID','打赏金额','选手姓名','归属俱乐部'
+        ]]);
+      });
+      btn2.addEventListener('click', () => {
+        downloadCSV('Excel2_积分导入模板.csv', [[
+          '小程序UID','消费平台','消费金额','归属俱乐部'
+        ]]);
+      });
+    });
+  </script>
 </body>
 </html>

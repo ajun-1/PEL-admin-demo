@@ -1,73 +1,155 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>审核中心 — PEL运营后台</title>
-<link rel="stylesheet" href="../assets/css/base.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> 审核模块原型</title>
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <style>
+    /* 审核列表表格样式（仅此页） */
+    .table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+    .table th, .table td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+    .table th { background: #f9fafb; font-weight: 600; }
+    .table th:first-child, .table td:first-child { padding-left: 0; }
+    .table th:last-child, .table td:last-child { padding-right: 0; }
+    .table th, .table td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .table tr:hover { background: #fafafa; }
+    .table col.col-activity { width: 22%; }
+    .table col.col-uid { width: 16%; }
+    .table col.col-shot { width: 14%; }
+    .table col.col-link { width: 18%; }
+    .table col.col-status { width: 14%; }
+    .table col.col-actions { width: 16%; }
+    .table th:nth-child(5), .table td:nth-child(5),
+    .table th:nth-child(6), .table td:nth-child(6) { text-align: center; }
+    .table .btn { padding: 6px 10px; }
+  </style>
 </head>
 <body>
-<header id="app-header"><div class="brand">PEL 分之一 — 运营管理后台</div></header>
-<main class="container">
-<aside class="sidebar">
-      <nav><ul>
-        <li><a href="page0_user.html">用户管理</a></li>
-        <li><a href="page1_banner.html">配置中心</a></li>
-        <li><a href="page2_club.html">俱乐部管理</a></li>
-        <li><a href="page6_activity.html">活动管理（UGC/投票/线下/裂变）</a></li>
-        <li><a href="page7_product.html">积分兑换商品</a></li>
-        <li><a href="page8_review.html" class="active">审核中心</a></li>
-        <li><a href="page5_import.html">数据导入</a></li>
-        <li><a href="page9_feedback.html">问题反馈</a></li>
-        
-      </ul></nav></aside>
-<section class="content">
+  <header id="app-header">
+    <div class="brand"> 审核模块原型</div>
+  </header>
+  <main class="container">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="page0_user.html">用户管理</a></li>
+          <li><a href="page1_banner.html">配置中心</a></li>
+          <li><a href="page2_club.html">俱乐部管理</a></li>
+          <li><a href="page6_activity.html">活动管理</a></li>
+          <li><a href="page7_product.html">积分兑换商品</a></li>
+          <li><a href="page8_review.html">审核中心</a></li>
+          <li><a href="page5_import.html">数据导入</a></li>
+          <li><a href="page9_feedback.html">问题反馈</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <section class="content">
+      <div style="background:#e8f4f8;border:1px solid #0ea5e9;padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:13px;color:#0c4a6e"><b>审核流程：</b>后台脚本自动校验点赞数 → 按活动配置的积分规则自动计算应得积分 → 审核人员确认或手动调整 → 审核通过后发放最终积分。手动调整用于客诉处理。</div>
+      <div class="card">
+        <h2>审核活动列表</h2>
+        <div class="form-grid" style="grid-template-columns: 200px 1fr auto; align-items: end;">
+          <div class="form-item">
+            <label>审核状态</label>
+            <select id="review-status">
+              <option value="全部">全部</option>
+              <option value="待审核" selected>待审核</option>
+              <option value="审核通过">审核通过</option>
+              <option value="审核不通过">审核不通过</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label>按用户ID搜索</label>
+            <input type="text" id="review-uid" placeholder="如 user_001" />
+          </div>
+          <div>
+            <button class="btn" id="btn-review-search">搜索</button>
+          </div>
+        </div>
+        <table class="table" id="review-table">
+          <colgroup>
+            <col class="col-activity" />
+            <col class="col-uid" />
+            <col class="col-shot" />
+            <col class="col-link" />
+            <col class="col-status" />
+            <col class="col-actions" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>活动名称</th>
+              <th>用户ID</th>
+              <th>上传链接</th><th>点赞数</th><th>自动计算积分</th><th>最终积分</th>
+              <th>当前状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 
-<div style="background:#e8f4f8;border:1px solid #0ea5e9;padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:13px;color:#0c4a6e">
-<b>审核流程：</b>后台脚本自动校验点赞数 → 按档位计算积分 → 审核人员确认或手动调整 → 通过后发放。手动调整用于客诉处理。</div>
+  <script src="../assets/js/common.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      const placeholderImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='60'><rect width='80' height='60' fill='%23f0f0f0'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='10' fill='%23999'>截图</text></svg>";
+      const data = [
+        { id:1, activity:'UGC 活动A', uid:'user_001', link:'https://example.com/a', likes:45, status:'待审核' },
+        { id:2, activity:'UGC 活动B', uid:'user_002', link:'', likes:120, status:'待审核' },
+        { id:3, activity:'投票活动C', uid:'user_003', link:'https://example.com/c', likes:15, status:'审核通过' },
+      ];
 
-<div style="margin-bottom:12px;display:flex;gap:8px">
-<button class="btn" id="tab-ugc" style="background:#eef2ff">UGC审核</button>
-<button class="btn" id="tab-social">社媒审核（微博/抖音/快手）</button>
-</div>
+      const tbody = document.querySelector('#review-table tbody');
+      const statusSel = document.getElementById('review-status');
+      const uidInput = document.getElementById('review-uid');
 
-<div id="ugc-review">
-<div class="card"><h2>UGC作品审核</h2>
-<div style="display:flex;gap:12px;margin-bottom:12px;align-items:end;flex-wrap:wrap">
-<div><label>状态</label><select><option>待审核</option><option>审核通过</option><option>审核不通过</option></select></div>
-<div><label>用户ID</label><input placeholder="搜索"/></div>
-<button class="btn">搜索</button>
-</div>
-<table class="table"><thead><tr><th>活动</th><th>用户ID</th><th>作品链接</th><th>点赞数</th><th>自动计算积分</th><th>最终积分</th><th>状态</th><th>操作</th></tr></thead><tbody>
-<tr><td>UGC征集A</td><td>user_001</td><td><a href="#">查看</a></td><td>45</td><td style="color:#6366f1">100(初级曝光)</td><td><input type="number" value="100" style="width:70px"/></td><td>待审核</td><td><button class="btn">通过</button> <button class="btn">驳回</button></td></tr>
-<tr><td>UGC征集B</td><td>user_002</td><td><a href="#">查看</a></td><td>120</td><td style="color:#6366f1">300(热门内容)</td><td><input type="number" value="300" style="width:70px"/></td><td>待审核</td><td><button class="btn">通过</button> <button class="btn">驳回</button></td></tr>
-<tr><td>UGC征集C</td><td>user_003</td><td><a href="#">查看</a></td><td>8</td><td style="color:#dc2626">0(不满足)</td><td><input type="number" value="0" style="width:70px"/></td><td>待审核</td><td><button class="btn">通过</button> <button class="btn">驳回</button></td></tr>
-</tbody></table></div></div>
+      function render(list) {
+        tbody.innerHTML = '';
+        list.forEach(row => {
+          const tr = document.createElement('tr');
+          const linkCell = row.link ? '<a href="'+row.link+'" target="_blank">查看链接</a>' : '—';
+          const likes = row.likes || 0;
+          const autoPts = calcPoints(likes);
+          const manualPts = manualAdjustments[row.id] !== undefined ? manualAdjustments[row.id] : (autoPts ? parseInt(autoPts)||0 : 0);
+          tr.innerHTML = '<td>'+row.activity+'</td><td>'+row.uid+'</td><td>'+linkCell+'</td><td>'+(likes||'—')+'</td><td style="color:#6366f1">'+(autoPts||'—')+'</td><td><input type="number" value="'+manualPts+'" min="0" style="width:70px" onchange="updateManualPts('+row.id+',this.value)"/></td><td>'+row.status+'</td><td><button class="btn" data-pass="'+row.id+'">通过</button> <button class="btn" data-reject="'+row.id+'">不通过</button></td>';
+          tbody.appendChild(tr);
+        });
+      }
 
-<div id="social-review" style="display:none">
-<div class="card"><h2>社媒账号绑定审核</h2>
-<p class="help">用户提交社媒绑定申请→人工审核。平台：微博、抖音、快手。</p>
-<table class="table"><thead><tr><th>申请ID</th><th>UID</th><th>昵称</th><th>平台</th><th>主页链接</th><th>时间</th><th>状态</th><th>操作</th></tr></thead><tbody>
-<tr><td>S001</td><td>user_001</td><td>小明</td><td>微博</td><td><a href="#">查看</a></td><td>06-20</td><td>待审核</td><td><button class="btn">通过</button> <button class="btn">驳回</button></td></tr>
-<tr><td>S002</td><td>user_002</td><td>小红</td><td>抖音</td><td><a href="#">查看</a></td><td>06-21</td><td>待审核</td><td><button class="btn">通过</button> <button class="btn">驳回</button></td></tr>
-<tr><td>S003</td><td>user_003</td><td>张三</td><td>快手</td><td><a href="#">查看</a></td><td>06-19</td><td>已通过</td><td><button class="btn">解绑</button></td></tr>
-</tbody></table></div></div>
+      function filter() {
+        const st = statusSel.value;
+        const kw = uidInput.value.trim();
+        let list = data.slice();
+        if (st && st !== '全部') list = list.filter(x => x.status === st);
+        if (kw) list = list.filter(x => x.uid.includes(kw));
+        render(list);
+      }
 
-<script>
-document.getElementById('tab-ugc').onclick=function(){
-this.style.background='#eef2ff';document.getElementById('tab-social').style.background='';
-document.getElementById('ugc-review').style.display='';document.getElementById('social-review').style.display='none';
-};
-document.getElementById('tab-social').onclick=function(){
-this.style.background='#eef2ff';document.getElementById('tab-ugc').style.background='';
-document.getElementById('social-review').style.display='';document.getElementById('ugc-review').style.display='none';
-};
+      statusSel.addEventListener('change', filter);
+      document.getElementById('btn-review-search').addEventListener('click', filter);
+      render(data.filter(x=>x.status==='待审核'));
+
+      tbody.addEventListener('click', (e) => {
+        const idPass = e.target.getAttribute('data-pass');
+        const idReject = e.target.getAttribute('data-reject');
+        if (idPass) {
+          const row = data.find(x=>x.id==idPass);
+          row.status = '审核通过';
+          filter();
+        } else if (idReject) {
+          const row = data.find(x=>x.id==idReject);
+          row.status = '审核不通过';
+          filter();
+        }
+      });
+    });
+  
+var likeTiers = [{name:'初级曝光',min:10,max:50,points:100},{name:'热门内容',min:51,max:200,points:300},{name:'爆款内容',min:201,max:999999,points:800}];
+var manualAdjustments = {};
+function updateManualPts(id,val){manualAdjustments[id]=parseInt(val)||0;}
+function calcPoints(likes){for(var i=0;i<likeTiers.length;i++){if(likes>=likeTiers[i].min&&likes<=likeTiers[i].max){return likeTiers[i].points+'('+likeTiers[i].name+')';}}return '0(不满足)';}
 </script>
-
-</section>
-</main>
-<script src="../assets/js/common.js"></script>
-<script>document.addEventListener('DOMContentLoaded',()=>{});</script>
 </body>
 </html>

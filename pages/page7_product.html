@@ -1,75 +1,636 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>积分兑换商品 — PEL运营后台</title>
-<link rel="stylesheet" href="../assets/css/base.css">
-
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> 商品管理</title>
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <style>
+    .content-actions { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px; }
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
+    .table th { background: #f9fafb; }
+    .tabs { display: inline-flex; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; }
+    .tabs button { padding: 6px 12px; border: none; background: #fff; cursor: pointer; }
+    .tabs button.active { background: #eef2ff; color: #1f2937; }
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 3000; }
+    .modal { background: #fff; width: 860px; max-width: 95vw; max-height: 90vh; overflow: auto; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 3001; }
+    .modal header { padding: 12px 16px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .modal .body { padding: 16px; }
+    .modal .footer { padding: 12px 16px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 8px; }
+    body.modal-open { overflow: hidden; }
+  </style>
+  </head>
 <body>
-<header id="app-header"><div class="brand">PEL 分之一 — 运营管理后台</div></header>
-<main class="container">
-<aside class="sidebar">
-      <nav><ul>
-        <li><a href="page0_user.html">用户管理</a></li>
-        <li><a href="page1_banner.html">配置中心</a></li>
-        <li><a href="page2_club.html">俱乐部管理</a></li>
-        <li><a href="page6_activity.html">活动管理（UGC/投票/线下/裂变）</a></li>
-        <li><a href="page7_product.html" class="active">积分兑换商品</a></li>
-        <li><a href="page8_review.html">审核中心</a></li>
-        <li><a href="page5_import.html">数据导入</a></li>
-        <li><a href="page9_feedback.html">问题反馈</a></li>
-        
-      </ul></nav></aside>
-<section class="content">
+  <header id="app-header">
+    <div class="brand"> 商品管理</div>
+  </header>
+  <main class="container">
+    <aside class="sidebar">
+      <nav>
+        <ul>
+          <li><a href="page0_user.html">用户管理</a></li>
+          <li><a href="page1_banner.html">配置中心</a></li>
+          <li><a href="page2_club.html">俱乐部管理</a></li>
+          <li><a href="page6_activity.html">活动管理</a></li>
+          <li><a href="page7_product.html">积分兑换商品</a></li>
+          <li><a href="page8_review.html">审核中心</a></li>
+          <li><a href="page5_import.html">数据导入</a></li>
+          <li><a href="page9_feedback.html">问题反馈</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <section class="content">
+      <div style="background:#fef3c7;border:1px solid #f59e0b;padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:13px;color:#92400e"><strong>本版本仅积分兑换，不涉及RMB支付。</strong>RMB商城由外部供应商独立小程序承接，本侧仅保留跳转入口配置。</div>
+      <div class="header-row">
+        <div class="tabs" id="view-tabs">
+          <button data-view="shop" class="active">商城商品</button>
+          <button data-view="points">积分兑换商品</button>
+        </div>
+        <div class="content-actions">
+          <button class="btn" id="btn-open-shop-config">商城商品配置</button>
+          <button class="btn" id="btn-open-points-config">积分兑换配置</button>
+        </div>
+      </div>
 
-<div style="background:#fef3c7;border:1px solid #f59e0b;padding:10px 14px;border-radius:6px;margin-bottom:16px;font-size:13px;color:#92400e">
-<strong>仅积分兑换，不涉及RMB支付。</strong>RMB商城由外部供应商独立小程序承接，本侧仅保留跳转入口。</div>
+      <div class="card">
+        <h2 id="list-title">商城商品列表</h2>
+        <table class="table" id="product-table">
+          <thead id="table-head">
+            <tr>
+              <th>商品名称</th>
+              <th>SKU</th>
+              <th>库存</th>
+              <th>售卖量</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
 
-<div style="margin-bottom:12px;display:flex;gap:8px">
-<button class="btn" id="tab-products" style="background:#eef2ff">商品管理</button>
-<button class="btn" id="tab-inventory">库存管理</button>
-</div>
+      <!-- 商城商品配置弹窗（内容与 page3_shop.html 完全一致，仅以弹窗展示） -->
+      <div class="modal-overlay" id="modal-shop-overlay">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="shop-modal-title">
+          <header>
+            <h3 id="shop-modal-title">商城商品配置</h3>
+            <button class="btn" data-close="shop">关闭</button>
+          </header>
+          <div class="body">
+            <form id="form-shop" class="form-grid">
+              <div class="form-item">
+                <label>商品名称（必选）</label>
+                <input type="text" name="title" required />
+              </div>
+              <div class="form-item">
+                <label>商品分类（必选）</label>
+                <select name="category" required>
+                  <option>实体商品</option>
+                  <option>虚拟商品</option>
+                  <option>线下权益</option>
+                </select>
+              </div>
+              <div class="form-item">
+                <label>商品封面图（必选）</label>
+                <input type="file" name="cover" accept="image/*" required />
+              </div>
+              <div class="form-item" style="grid-column: 1 / -1;">
+                <label>商品描述（可选）</label>
+                <input type="file" name="desc_images" accept="image/*" multiple required />
+                <div class="help">说明：支持上传多张商品详情图片（JPG/PNG），为必填。</div>
+              </div>
+              <div class="form-item">
+                <label>所属俱乐部（可选）</label>
+                <select name="club">
+                  <option value="">不绑定</option>
+                  <option>俱乐部1</option>
+                  <option>俱乐部2</option>
+                  <option>俱乐部3</option>
+                  <option>俱乐部4</option>
+                  <option>俱乐部5</option>
+                  <option>俱乐部6</option>
+                  <option>俱乐部7</option>
+                  <option>俱乐部8</option>
+                  <option>俱乐部9</option>
+                  <option>俱乐部10</option>
+                  <option>俱乐部11</option>
+                  <option>俱乐部12</option>
+                  <option>俱乐部13</option>
+                  <option>俱乐部14</option>
+                  <option>俱乐部15</option>
+                  <option>俱乐部16</option>
+                  <option>俱乐部17</option>
+                  <option>俱乐部18</option>
+                  <option>俱乐部19</option>
+                  <option>俱乐部20</option>
+                  <option>俱乐部21</option>
+                  <option>俱乐部22</option>
+                </select>
+              </div>
+              <div class="form-item">
+                <label>所需积分（必选）</label>
+                <input type="number" name="points" min="0" step="0.01" required />
+              </div>
+              <div class="form-item">
+                <label>库存数量（必选）</label>
+                <input type="number" name="stock" min="0" step="1" required />
+              </div>
+              <div class="form-item">
+                <label>商品状态（必选）</label>
+                <select name="status" required>
+                  <option>上架</option>
+                  <option>下架</option>
+                </select>
+              </div>
+              <div class="form-item">
+                <label>售卖模式（必选）</label>
+                <select name="mode" id="sell-mode" required>
+                  <option value="普通售卖">普通售卖</option>
+                  <option value="优先购">优先购（仅限俱乐部商品）</option>
+                </select>
+              </div>
 
-<div id="products-section">
-<div class="card"><h2>积分兑换商品列表</h2>
-<button class="btn primary" style="margin-bottom:12px">+ 新增商品</button>
-<table class="table"><thead><tr><th>商品名称</th><th>SKU</th><th>类型</th><th>所需积分</th><th>库存</th><th>已兑</th><th>状态</th><th>操作</th></tr></thead><tbody>
-<tr><td>战队队服</td><td>JDG-JF-001</td><td>实体商品</td><td>500</td><td>150</td><td>45</td><td>上架</td><td><button class="btn">编辑</button> <button class="btn">下架</button></td></tr>
-<tr><td>纪念徽章</td><td>PTS-001</td><td>实体商品</td><td>100</td><td>300</td><td>210</td><td>上架</td><td><button class="btn">编辑</button> <button class="btn">下架</button></td></tr>
-<tr><td>电子壁纸</td><td>PTS-002</td><td>虚拟商品</td><td>50</td><td>—</td><td>80</td><td>上架</td><td><button class="btn">编辑</button> <button class="btn">下架</button></td></tr>
-<tr><td>观赛权益</td><td>SKU-003</td><td>线下权益</td><td>200</td><td>80</td><td>10</td><td>下架</td><td><button class="btn">编辑</button> <button class="btn">上架</button></td></tr>
-</tbody></table></div></div>
+              <div class="form-item" id="priority-group" style="display:none;">
+                <label>优先购等级限制（可选）</label>
+                <select name="priority_level">
+                  <option value="">不限</option>
+                  <option>Lv1</option>
+                  <option>Lv2</option>
+                  <option>Lv3</option>
+                  <option>Lv4</option>
+                  <option>Lv5</option>
+                </select>
+              </div>
 
-<div id="inventory-section" style="display:none">
-<div class="card"><h2>库存管理</h2>
-<table class="table"><thead><tr><th>商品名称</th><th>SKU</th><th>当前库存</th><th>预占</th><th>可用</th><th>预警值</th><th>状态</th><th>操作</th></tr></thead><tbody>
-<tr><td>战队队服</td><td>JDG-JF-001</td><td>150</td><td>3</td><td>147</td><td>10</td><td>正常</td><td><button class="btn">调整</button></td></tr>
-<tr><td>纪念徽章</td><td>PTS-001</td><td>300</td><td>0</td><td>300</td><td>20</td><td>正常</td><td><button class="btn">调整</button></td></tr>
-<tr><td>观赛权益</td><td>SKU-003</td><td>8</td><td>2</td><td>6</td><td>10</td><td style="color:#dc2626">低于预警</td><td><button class="btn">调整</button></td></tr>
-</tbody></table>
-<h3 style="margin-top:16px">库存规则说明</h3>
-<div style="background:#f0fdf4;border:1px solid #22c55e;padding:12px;border-radius:6px;font-size:13px;color:#166534">
-<p><b>预占：</b>下单锁定5分钟，超时释放</p>
-<p><b>扣减：</b>兑换成功后扣减，记录日志</p>
-<p><b>预警：</b>低于预警值自动提醒</p>
-</div></div></div>
+              <!-- 分类专属配置面板：根据“商品分类”切换显示 -->
+              <div id="category-panels" style="grid-column: 1 / -1;">
+                <!-- 实体商品面板 -->
+                <div id="panel-real" class="card info" style="display:none;">
+                  <h3>实体商品配置</h3>
+                  <div class="form-grid">
+                    <div class="form-item">
+                      <label>发货方式（固定）</label>
+                      <input type="text" value="实体发货" name="delivery_real" disabled />
+                    </div>
+                  </div>
+                </div>
 
-<script>
-document.getElementById('tab-products').onclick=function(){
-this.style.background='#eef2ff';document.getElementById('tab-inventory').style.background='';
-document.getElementById('products-section').style.display='';document.getElementById('inventory-section').style.display='none';
-};
-document.getElementById('tab-inventory').onclick=function(){
-this.style.background='#eef2ff';document.getElementById('tab-products').style.background='';
-document.getElementById('inventory-section').style.display='';document.getElementById('products-section').style.display='none';
-};
-</script>
+                <!-- 虚拟商品面板 -->
+                <div id="panel-virtual" class="card info" style="display:none;">
+                  <h3>虚拟商品配置</h3>
+                  <div class="form-grid">
+                    <div class="form-item">
+                      <label>虚拟发放类型（可选）</label>
+                      <select name="virtual_issue_type">
+                        <option value="">不选择</option>
+                        <option>自动发放</option>
+                        <option>后台审核发放</option>
+                      </select>
+                    </div>
+                    <div class="form-item" style="grid-column: 1 / -1;">
+                      <label>虚拟发放内容（可选）</label>
+                      <select name="virtual_issue_entry" id="virtual-content-select">
+                        <option value="">不选择</option>
+                        <option>图片</option>
+                        <option>视频</option>
+                        <option>活动二维码（自动生成）</option>
+                      </select>
+                      <div class="help">说明：根据选择显示对应配置入口；不提供链接内容。</div>
+                    </div>
+                    <!-- 根据入口类型显示的配置区域，仅在选择时出现 -->
+                    <div id="virtual-content-image" class="form-item" style="display:none; grid-column: 1 / -1;">
+                      <label>上传图片</label>
+                      <input type="file" name="virtual_image_file" accept="image/*" />
+                    </div>
+                    <div id="virtual-content-video" class="form-item" style="display:none; grid-column: 1 / -1;">
+                      <label>上传视频</label>
+                      <input type="file" name="virtual_video_file" accept="video/*" />
+                    </div>
+                    <div id="virtual-content-code" class="form-item" style="display:none;">
+                      <label>活动二维码</label>
+                      <input type="text" value="系统自动生成" name="virtual_code_auto" disabled />
+                    </div>
+                    <div class="form-item">
+                      <label>发货方式（固定）</label>
+                      <input type="text" value="虚拟发放" name="delivery_virtual" disabled />
+                    </div>
+                  </div>
+                </div>
 
+                <!-- 线下权益面板 -->
+                <div id="panel-offline" class="card info" style="display:none;">
+                  <h3>线下权益配置</h3>
+                  <div class="form-grid">
+                    <div class="form-item">
+                      <label>线下活动权益绑定（可选）</label>
+                      <select name="offline_benefit_bind_offline">
+                        <option value="">不绑定</option>
+                        <option>活动A</option>
+                        <option>活动B</option>
+                      </select>
+                    </div>
+                    <div class="form-item">
+                      <label>核销二维码（自动生成）</label>
+                      <input type="text" name="verify_qr_offline" value="系统自动生成" disabled />
+                    </div>
+                    <div class="form-item">
+                      <label>发货方式（固定）</label>
+                      <input type="text" value="线下核销" name="delivery_offline" disabled />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="two-col" style="grid-column: 1 / -1;">
+                <div class="form-item">
+                  <label>销售开始时间（可选）</label>
+                  <input type="datetime-local" name="sale_start" />
+                </div>
+                <div class="form-item">
+                  <label>销售结束时间（可选）</label>
+                  <input type="datetime-local" name="sale_end" />
+                </div>
+              </div>
+
+              <div class="form-item">
+                <label>是否支持退货（可选）</label>
+                <div class="switch"><input type="checkbox" name="support_refund" /></div>
+                <div class="help">默认虚拟商品不可退</div>
+              </div>
+            </form>
+            <div class="btn-row">
+              <button class="btn primary" id="btn-preview">预览配置</button>
+              <button class="btn" id="btn-publish-3">确认并发布</button>
+            </div>
+          </div>
+          <div class="footer">
+            <button class="btn" data-close="shop">关闭</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 积分兑换配置弹窗（内容与 page4_points.html 完全一致，仅以弹窗展示） -->
+      <div class="modal-overlay" id="modal-points-overlay">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="points-modal-title">
+          <header>
+            <h3 id="points-modal-title">积分兑换配置</h3>
+            <button class="btn" data-close="points">关闭</button>
+          </header>
+          <div class="body">
+            <form id="form-points" class="form-grid">
+              <div class="form-item">
+                <label>积分商品名称（必选）</label>
+                <input type="text" name="title" required />
+              </div>
+              <div class="form-item">
+                <label>商品类型（必选）</label>
+                <select name="type" id="points-type" required>
+                  <option>实体商品</option>
+                  <option>虚拟商品</option>
+                  <option>线下权益</option>
+                </select>
+              </div>
+              <div class="form-item">
+                <label>商品封面图（必选）</label>
+                <input type="file" name="cover" accept="image/*" required />
+              </div>
+              <div class="form-item" style="grid-column: 1 / -1;">
+                <label>商品简介图片（可选）</label>
+                <input type="file" name="intro_images" accept="image/*" multiple />
+                <div class="help">说明：支持上传商品简介展示图片（JPG/PNG），可多张。</div>
+              </div>
+              <div class="form-item">
+                <label>所属俱乐部（可选）</label>
+                <select name="club">
+                  <option value="">不绑定</option>
+                  <option>俱乐部1</option>
+                  <option>俱乐部2</option>
+                  <option>俱乐部3</option>
+                  <option>俱乐部4</option>
+                  <option>俱乐部5</option>
+                  <option>俱乐部6</option>
+                  <option>俱乐部7</option>
+                  <option>俱乐部8</option>
+                  <option>俱乐部9</option>
+                  <option>俱乐部10</option>
+                  <option>俱乐部11</option>
+                  <option>俱乐部12</option>
+                  <option>俱乐部13</option>
+                  <option>俱乐部14</option>
+                  <option>俱乐部15</option>
+                  <option>俱乐部16</option>
+                  <option>俱乐部17</option>
+                  <option>俱乐部18</option>
+                  <option>俱乐部19</option>
+                  <option>俱乐部20</option>
+                  <option>俱乐部21</option>
+                  <option>俱乐部22</option>
+                </select>
+              </div>
+              <div class="form-item">
+                <label>所需积分（必选）</label>
+                <input type="number" name="need_points" min="0" step="1" required />
+              </div>
+              <div class="form-item">
+                <label>库存数量（必选）</label>
+                <input type="number" name="stock" min="0" step="1" required />
+              </div>
+              <div class="form-item">
+                <label>每人限兑次数（可选）</label>
+                <input type="number" name="limit_per_user" min="0" step="1" />
+              </div>
+              <div class="form-item">
+                <label>兑换开始时间（必选）</label>
+                <input type="datetime-local" name="start" required />
+              </div>
+              <div class="form-item">
+                <label>兑换结束时间（可选）</label>
+                <input type="datetime-local" name="end" />
+              </div>
+              <!-- 分类专属配置面板：根据“商品类型”切换显示（与商城商品配置一致） -->
+              <div id="points-category-panels" style="grid-column: 1 / -1;">
+                <!-- 实体商品面板 -->
+                <div id="points-panel-real" class="card info" style="display:none;">
+                  <h3>实体商品配置</h3>
+                  <div class="form-grid">
+                    <div class="form-item">
+                      <label>发货方式（固定）</label>
+                      <input type="text" value="实体发货" name="delivery_real_points" disabled />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 虚拟商品面板 -->
+                <div id="points-panel-virtual" class="card info" style="display:none;">
+                  <h3>虚拟商品配置</h3>
+                  <div class="form-grid">
+                    <div class="form-item">
+                      <label>虚拟发放类型（可选）</label>
+                      <select name="virtual_issue_type_points">
+                        <option value="">不选择</option>
+                        <option>自动发放</option>
+                        <option>后台审核发放</option>
+                      </select>
+                    </div>
+                    <div class="form-item" style="grid-column: 1 / -1;">
+                      <label>虚拟发放内容（可选）</label>
+                      <select name="virtual_issue_entry_points" id="virtual-content-select-points">
+                        <option value="">不选择</option>
+                        <option>图片</option>
+                        <option>视频</option>
+                        <option>活动二维码（自动生成）</option>
+                      </select>
+                      <div class="help">说明：根据选择显示对应配置入口；不提供链接内容。</div>
+                    </div>
+                    <div id="points-virtual-image" class="form-item" style="display:none; grid-column: 1 / -1;">
+                      <label>上传图片</label>
+                      <input type="file" name="virtual_image_file_points" accept="image/*" />
+                    </div>
+                    <div id="points-virtual-video" class="form-item" style="display:none; grid-column: 1 / -1;">
+                      <label>上传视频</label>
+                      <input type="file" name="virtual_video_file_points" accept="video/*" />
+                    </div>
+                    <div id="points-virtual-code" class="form-item" style="display:none;">
+                      <label>活动二维码</label>
+                      <input type="text" value="系统自动生成" name="virtual_code_auto_points" disabled />
+                    </div>
+                    <div class="form-item">
+                      <label>发货方式（固定）</label>
+                      <input type="text" value="虚拟发放" name="delivery_virtual_points" disabled />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 线下权益面板 -->
+                <div id="points-panel-offline" class="card info" style="display:none;">
+                  <h3>线下权益配置</h3>
+                  <div class="form-grid">
+                    <div class="form-item">
+                      <label>线下活动权益绑定（可选）</label>
+                      <select name="offline_benefit_bind_offline_points">
+                        <option value="">不绑定</option>
+                        <option>活动A</option>
+                        <option>活动B</option>
+                      </select>
+                    </div>
+                    <div class="form-item">
+                      <label>核销二维码（自动生成）</label>
+                      <input type="text" name="verify_qr_offline_points" value="系统自动生成" disabled />
+                    </div>
+                    <div class="form-item">
+                      <label>发货方式（固定）</label>
+                      <input type="text" value="线下核销" name="delivery_offline_points" disabled />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-item">
+                <label>等级限制（可选）</label>
+                <select name="limit_level">
+                  <option value="">不限</option>
+                  <option>Lv1</option>
+                  <option>Lv2</option>
+                  <option>Lv3</option>
+                  <option>Lv4</option>
+                  <option>Lv5</option>
+                </select>
+              </div>
+              <!-- 发货方式由分类面板固定展示，不在主表单中选择 -->
+              <div class="form-item">
+                <label>商品状态（必选）</label>
+                <select name="status" required>
+                  <option>上架</option>
+                  <option>下架</option>
+                </select>
+              </div>
+
+              <div class="form-item">
+                <label>是否积分退还（可选）</label>
+                <div class="switch"><input type="checkbox" name="refund_points" /></div>
+              </div>
+              <div class="form-item">
+                <label>排序权重（可选）</label>
+                <input type="number" name="weight" min="0" step="1" />
+              </div>
+            </form>
+            <div class="btn-row">
+              <button class="btn primary" id="btn-preview">预览配置</button>
+              <button class="btn" id="btn-publish-4">确认并发布</button>
+            </div>
+          </div>
+          <div class="footer">
+            <button class="btn" data-close="points">关闭</button>
+          </div>
+        </div>
+      </div>
+    
+      <div class="card" style="margin-top:20px">
+        <h2>库存管理</h2>
+        <table class="table"><thead><tr><th>商品名称</th><th>SKU</th><th>当前库存</th><th>预占库存</th><th>可用库存</th><th>预警值</th><th>状态</th><th>操作</th></tr></thead><tbody>
+        <tr><td>AG战队队服</td><td>AG-JF-001</td><td>150</td><td>3</td><td>147</td><td>10</td><td>正常</td><td><button class="btn">调整</button></td></tr>
+        <tr><td>4AM应援手环</td><td>4AM-SH-002</td><td>200</td><td>0</td><td>200</td><td>20</td><td>正常</td><td><button class="btn">调整</button></td></tr>
+        <tr><td>WBG限定徽章</td><td>WBG-HZ-003</td><td>8</td><td>2</td><td>6</td><td>10</td><td style="color:#dc2626">低于预警</td><td><button class="btn">调整</button></td></tr>
+        </tbody></table>
+        <h3 style="margin-top:16px">库存规则说明</h3>
+        <div style="background:#f0fdf4;border:1px solid #22c55e;padding:12px;border-radius:6px;font-size:13px;color:#166534">
+          <p><b>预占库存：</b>用户下单时锁定5分钟，超时未兑换自动释放</p>
+          <p><b>正式扣减：</b>兑换成功后正式扣减库存，记录库存日志</p>
+          <p><b>库存预警：</b>低于预警值时自动提醒运营人员</p>
+        </div>
+      </div>
 </section>
-</main>
-<script src="../assets/js/common.js"></script>
-<script>document.addEventListener('DOMContentLoaded',()=>{});</script>
+  </main>
+
+  <script src="../assets/js/common.js?v=20251106"></script>
+  <script>
+    const mountToBody = (overlay) => {
+      if (!overlay) return;
+      if (overlay.parentElement !== document.body) document.body.appendChild(overlay);
+    };
+    const openModal = (overlay) => {
+      if (document.activeElement) document.activeElement.blur();
+      mountToBody(overlay);
+      overlay.style.display = 'flex';
+      document.body.classList.add('modal-open');
+    };
+    const closeModal = (overlay) => {
+      overlay.style.display = 'none';
+      document.body.classList.remove('modal-open');
+    };
+
+    const shopData = [
+      { id: 1, title: '球衣A', sku: 'SKU-001', stock: 120, sold: 45, status: '上架', points: 199, category: '实体商品' },
+      { id: 2, title: '数字签名卡', sku: 'SKU-002', stock: 500, sold: 210, status: '上架', points: 29, category: '虚拟商品' },
+      { id: 3, title: '线下观赛权益', sku: 'SKU-003', stock: 80, sold: 10, status: '下架', points: 99, category: '线下权益' }
+    ];
+    const pointsData = [
+      { id: 11, title: '积分-纪念徽章', sku: 'PTS-001', need_points: 500, stock: 50, status: '上架', type: '实体商品', club: '俱乐部1' },
+      { id: 12, title: '积分-电子壁纸', sku: 'PTS-002', need_points: 100, stock: 300, status: '上架', type: '虚拟商品', club: '' }
+    ];
+
+    function renderTable(view) {
+      const titleEl = document.getElementById('list-title');
+      const headEl = document.getElementById('table-head');
+      const bodyEl = document.getElementById('table-body');
+      bodyEl.innerHTML = '';
+      if (view === 'shop') {
+        titleEl.textContent = '商城商品列表';
+        headEl.innerHTML = `<tr>
+          <th>商品名称</th><th>SKU</th><th>库存</th><th>售卖量</th><th>状态</th><th>操作</th>
+        </tr>`;
+        shopData.forEach(p => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${p.title}</td><td>${p.sku}</td><td>${p.stock}</td><td>${p.sold}</td><td>${p.status}</td>
+                          <td><button class='btn' data-edit-shop='${p.id}'>编辑配置</button></td>`;
+          bodyEl.appendChild(tr);
+        });
+      } else {
+        titleEl.textContent = '积分兑换商品列表';
+        headEl.innerHTML = `<tr>
+          <th>商品名称</th><th>SKU</th><th>所需积分</th><th>库存</th><th>状态</th><th>操作</th>
+        </tr>`;
+        pointsData.forEach(p => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${p.title}</td><td>${p.sku}</td><td>${p.need_points}</td><td>${p.stock}</td><td>${p.status}</td>
+                          <td><button class='btn' data-edit-points='${p.id}'>编辑配置</button></td>`;
+          bodyEl.appendChild(tr);
+        });
+      }
+    }
+
+    function prefillShopForm(p) {
+      const f = document.getElementById('form-shop');
+      f.title.value = p.title || '';
+      f.category.value = p.category || '实体商品';
+      f.points.value = p.points || '';
+      f.stock.value = p.stock || '';
+      f.status.value = p.status || '上架';
+    }
+    function prefillPointsForm(p) {
+      const f = document.getElementById('form-points');
+      f.title.value = p.title || '';
+      f.type.value = p.type || '实体商品';
+      if (f.club) f.club.value = p.club || '';
+      f.need_points.value = p.need_points || '';
+      f.stock.value = p.stock || '';
+      f.status.value = p.status || '上架';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Tabs switching
+      const tabs = document.getElementById('view-tabs');
+      tabs.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const v = btn.dataset.view;
+        tabs.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+        renderTable(v);
+      });
+      renderTable('shop');
+
+      // Entrances
+      document.getElementById('btn-open-shop-config').addEventListener('click', () => {
+        openModal(document.getElementById('modal-shop-overlay'));
+      });
+      document.getElementById('btn-open-points-config').addEventListener('click', () => {
+        openModal(document.getElementById('modal-points-overlay'));
+      });
+
+      // Close buttons
+      document.querySelectorAll('[data-close="shop"]').forEach(b => b.addEventListener('click', () => closeModal(document.getElementById('modal-shop-overlay'))));
+      document.querySelectorAll('[data-close="points"]').forEach(b => b.addEventListener('click', () => closeModal(document.getElementById('modal-points-overlay'))));
+
+      // Edit actions
+      document.getElementById('product-table').addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const idShop = btn.getAttribute('data-edit-shop');
+        const idPoints = btn.getAttribute('data-edit-points');
+        if (idShop) {
+          const p = shopData.find(x => String(x.id) === String(idShop));
+          if (p) prefillShopForm(p);
+          openModal(document.getElementById('modal-shop-overlay'));
+        } else if (idPoints) {
+          const p = pointsData.find(x => String(x.id) === String(idPoints));
+          if (p) prefillPointsForm(p);
+          openModal(document.getElementById('modal-points-overlay'));
+        }
+      });
+
+      // Priority group toggle
+      toggleBySelect('sell-mode', { 'priority-group': ['优先购'] });
+
+      // 分类面板切换（商城）
+      const categorySel = document.querySelector('#modal-shop-overlay select[name="category"]');
+      if (categorySel) categorySel.id = 'category-select';
+      toggleBySelect('category-select', {
+        'panel-real': ['实体商品'],
+        'panel-virtual': ['虚拟商品'],
+        'panel-offline': ['线下权益']
+      });
+      // 虚拟发放内容入口切换（商城）
+      toggleBySelect('virtual-content-select', {
+        'virtual-content-image': ['图片'],
+        'virtual-content-video': ['视频'],
+        'virtual-content-code': ['活动二维码（自动生成）']
+      });
+
+      // 分类面板切换（积分）
+      toggleBySelect('points-type', {
+        'points-panel-real': ['实体商品'],
+        'points-panel-virtual': ['虚拟商品'],
+        'points-panel-offline': ['线下权益']
+      });
+      // 虚拟发放内容入口切换（积分）
+      toggleBySelect('virtual-content-select-points', {
+        'points-virtual-image': ['图片'],
+        'points-virtual-video': ['视频'],
+        'points-virtual-code': ['活动二维码（自动生成）']
+      });
+    });
+  </script>
 </body>
 </html>
