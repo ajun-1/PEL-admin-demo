@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>活动管理 — PEL运营后台</title>
 <link rel="stylesheet" href="../assets/css/base.css">
-
 </head>
 <body>
 <header id="app-header"><div class="brand">PEL 分之一 — 运营管理后台</div></header>
@@ -15,7 +14,7 @@
         <li><a href="page0_user.html">用户管理</a></li>
         <li><a href="page1_banner.html">配置中心</a></li>
         <li><a href="page2_club.html">俱乐部管理</a></li>
-        <li><a href="page6_activity.html" class="active">活动管理</a></li>
+        <li><a href="page6_activity.html" class="active">活动管理（UGC/投票/线下/裂变）</a></li>
         <li><a href="page7_product.html">积分兑换商品</a></li>
         <li><a href="page8_review.html">审核中心</a></li>
         <li><a href="page5_import.html">数据导入</a></li>
@@ -27,25 +26,23 @@
 <div class="card"><h2>活动列表</h2>
 <div style="display:flex;gap:12px;margin-bottom:12px;align-items:end;flex-wrap:wrap">
 <div><label>状态</label><select><option>全部</option><option>未开始</option><option>进行中</option><option>已结束</option></select></div>
-<div><label>类型</label><select><option>全部</option><option>UGC活动</option><option>投票活动</option><option>H5活动</option><option>线下核销</option></select></div>
+<div><label>类型</label><select><option>全部</option><option>UGC活动</option><option>投票活动</option><option>线下核销</option></select></div>
 <button class="btn primary" id="btn-create-activity">+ 新建活动</button>
 </div>
 <table class="table"><thead><tr><th>活动名称</th><th>类型</th><th>展示时间</th><th>开始时间</th><th>结束时间</th><th>状态</th><th>操作</th></tr></thead><tbody>
 <tr><td>粉丝UGC征集</td><td>UGC活动</td><td>06-01</td><td>06-05 10:00</td><td>06-25 23:59</td><td>进行中</td><td><button class="btn">编辑</button> <button class="btn">下线</button></td></tr>
 <tr><td>年度最佳投票</td><td>投票活动</td><td>06-10</td><td>06-15 09:00</td><td>06-30 23:59</td><td>未开始</td><td><button class="btn">编辑</button> <button class="btn">发布</button></td></tr>
-<tr><td>周年庆H5</td><td>H5活动</td><td>06-20</td><td>06-25 00:00</td><td>07-10 23:59</td><td>草稿</td><td><button class="btn">编辑</button> <button class="btn">发布</button></td></tr>
 <tr><td>线下见面会</td><td>线下核销</td><td>06-15</td><td>07-01 14:00</td><td>07-01 18:00</td><td>已结束</td><td><button class="btn">查看</button></td></tr>
 </tbody></table></div>
 
-<!-- Create/Edit Activity Modal -->
 <div class="modal-overlay" id="activity-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);align-items:center;justify-content:center;z-index:2000">
-<div class="modal" style="background:#fff;width:800px;max-height:85vh;overflow:auto;border-radius:8px;position:relative;z-index:2001">
+<div class="modal" style="background:#fff;width:800px;max-height:85vh;overflow:auto;border-radius:8px;z-index:2001">
 <div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-weight:600;display:flex;justify-content:space-between">
-<span id="modal-title">新建活动</span><button class="btn" id="btn-modal-close">关闭</button></div>
+<span>新建活动</span><button class="btn" id="btn-modal-close">关闭</button></div>
 <div style="padding:16px">
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
 <div><label>活动类型</label><select id="act-type"><option value="online">线上活动</option><option value="offline">线下活动</option></select></div>
-<div><label>子类型</label><select id="act-subtype"><option>UGC活动</option><option>投票活动</option><option>H5活动</option></select></div>
+<div><label>子类型</label><select id="act-subtype"><option>UGC活动</option><option>投票活动</option></select></div>
 <div><label>归属俱乐部</label><select><option>JDG</option><option>TianBa</option><option>WBG</option></select></div>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
@@ -60,10 +57,9 @@
 <div style="margin-bottom:12px"><label>积分奖励</label><input type="number" min="0" step="1" placeholder="奖励积分" style="width:100%"/></div>
 <div style="margin-bottom:12px"><label>等级限制</label><select style="width:100%"><option>Lv1</option><option>Lv2</option><option>Lv3</option><option>Lv4</option><option>Lv5</option></select></div>
 
-<!-- UGC specific -->
-<div id="ugc-fields"><div style="background:#f0fdf4;border:1px solid #22c55e;padding:10px;border-radius:6px;margin-bottom:12px;font-size:13px">
-<strong>UGC点赞积分规则配置</strong>（按点赞数档位自动计算积分）<br>
-审核中心保留手动调整能力用于客诉处理。</div>
+<div id="ugc-fields">
+<div style="background:#f0fdf4;border:1px solid #22c55e;padding:10px;border-radius:6px;margin-bottom:12px;font-size:13px">
+<strong>UGC点赞积分规则</strong>（按点赞数档位自动计算，审核中心保留手动调整用于客诉）</div>
 <table class="table" style="margin-bottom:8px"><thead><tr><th>档位</th><th>最低点赞</th><th>最高点赞</th><th>奖励积分</th><th>操作</th></tr></thead><tbody>
 <tr><td>初级曝光</td><td>10</td><td>50</td><td>100</td><td><button class="btn">删除</button></td></tr>
 <tr><td>热门内容</td><td>51</td><td>200</td><td>300</td><td><button class="btn">删除</button></td></tr>
@@ -71,7 +67,6 @@
 </tbody></table>
 <button class="btn">+ 添加档位</button></div>
 
-<!-- Vote specific -->
 <div id="vote-fields" style="display:none">
 <div style="margin-bottom:12px"><label>投票介绍</label><textarea rows="2" style="width:100%" placeholder="活动说明"></textarea></div>
 <div><label>单选/多选</label>
@@ -81,12 +76,6 @@
 <div style="display:flex;gap:8px"><input placeholder="输入选项" style="flex:1"/><button class="btn">添加</button></div>
 <ul style="margin-top:8px"><li>示例选项A</li><li>示例选项B</li></ul></div></div>
 
-<!-- H5 specific -->
-<div id="h5-fields" style="display:none">
-<div><label>H5页面链接</label><input style="width:100%" placeholder="https://..."/></div>
-<p class="help">用户点击活动卡片后跳转到此H5页面</p></div>
-
-<!-- Offline specific -->
 <div id="offline-fields" style="display:none">
 <div style="margin-bottom:12px"><label>活动地点</label><input style="width:100%" placeholder="如:北京·国家体育馆"/></div>
 <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end">
@@ -100,7 +89,6 @@
 <button class="btn primary" id="btn-publish">确认并发布</button></div>
 </div></div>
 
-<!-- Viral / 裂变配置区 -->
 <div class="card" style="margin-top:20px"><h2>邀请有礼（裂变）配置</h2>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
 <div><label>活动名称</label><input style="width:100%" value="2026夏季邀请有礼"/></div>
@@ -121,7 +109,7 @@
 </div>
 <h3 style="margin-top:16px">预算上限</h3>
 <div><label>积分总量上限</label><input type="number" value="100000" style="width:200px"/></div>
-<p style="color:#92400e;font-size:13px;margin-top:4px">超出预算自动终止活动。数值需运营方测算好，防止超发。</p>
+<p style="color:#92400e;font-size:13px;margin-top:4px">超出预算自动终止活动。数值需运营方测算，防止超发。</p>
 <button class="btn primary" style="margin-top:12px">保存裂变配置</button></div>
 
 <script>
@@ -134,18 +122,16 @@ document.getElementById('activity-modal').style.display='none';
 document.getElementById('act-type').onchange=function(){
 var v=this.value;
 document.getElementById('act-subtype').innerHTML=v==='online'
-?'<option>UGC活动</option><option>投票活动</option><option>H5活动</option>'
+?'<option>UGC活动</option><option>投票活动</option>'
 :'<option>线下扫码核销</option>';
 };
 document.getElementById('act-subtype').onchange=function(){
 var ugc=document.getElementById('ugc-fields');
 var vote=document.getElementById('vote-fields');
-var h5=document.getElementById('h5-fields');
 var off=document.getElementById('offline-fields');
-ugc.style.display=vote.style.display=h5.style.display=off.style.display='none';
+ugc.style.display=vote.style.display=off.style.display='none';
 if(this.value==='UGC活动')ugc.style.display='';
 else if(this.value==='投票活动')vote.style.display='';
-else if(this.value==='H5活动')h5.style.display='';
 else off.style.display='';
 };
 </script>
