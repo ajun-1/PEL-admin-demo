@@ -1,424 +1,108 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title> 俱乐部配置原型</title>
-  <link rel="stylesheet" href="../assets/css/base.css">
-  <style>
-    .modal-overlay {position: fixed; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 3000;}
-    .modal {background: #fff; width: 900px; max-height: 80vh; overflow: auto; border-radius: 8px; box-shadow: 0 10px 24px rgba(0,0,0,.2); position: relative; z-index: 3001;}
-    .modal-header {display:flex; justify-content: space-between; align-items:center; padding:12px 16px; border-bottom:1px solid #eee; font-weight:600;}
-    .modal-body {padding:16px;}
-    .modal-footer {padding:12px 16px; border-top:1px solid #eee; display:flex; gap:8px; justify-content:flex-end;}
-    body.modal-open { overflow: hidden; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>俱乐部管理 — PEL运营后台</title>
+<link rel="stylesheet" href="../assets/css/base.css">
 
-    /* 画框样式：白色填充、标题位于画框外右上角 */
-    .frame-wrap { position: relative; margin: 24px 0; }
-    .frame { background: #fff; border: 1px solid var(--border, #e5e7eb); border-radius: 12px; padding: 16px; box-shadow: 0 6px 16px rgba(0,0,0,.08); }
-    .frame-title { position: absolute; top: -8px; left: 0; transform: translateY(-100%); font-size: 14px; font-weight: 600; color: var(--muted, #5b6677); background: #fff; border: 1px solid var(--border, #e5e7eb); padding: 4px 10px; border-radius: 999px; box-shadow: 0 3px 8px rgba(0,0,0,.06); }
-    /* 第二个画框额外下移 */
-    .frame-wrap + .frame-wrap { margin-top: 36px; }
-  </style>
 </head>
 <body>
-  <header id="app-header">
-    <div class="brand"> 俱乐部配置原型</div>
-  </header>
-  <main class="container">
-    <aside class="sidebar">
-      <nav>
-        <ul>
-          <li><a href="page0_user.html"> 用户管理</a></li>
-          <li><a href="page1_banner.html"> Banner配置</a></li>
-          <li><a href="page2_club.html"> 俱乐部配置</a></li>
-          <li><a href="page7_product.html"> 商品管理</a></li>
-          <li><a href="page6_activity.html"> 活动配置</a></li>
-          <li><a href="page8_review.html"> 审核模块</a></li>
-          <li><a href="page9_feedback.html"> 问题反馈</a></li>
-          <li><a href="page5_import.html"> 非小程序消费导入</a></li>
-          <li><a href="page10_account.html"> 账号管理</a></li>
-        </ul>
-      </nav>
-    </aside>
-    <section class="content">
-      <div class="card">
-        <h2>俱乐部列表（已有俱乐部编辑）</h2>
-        <div class="btn-row">
-          <button type="button" class="btn primary" id="btn-edit-club">编辑俱乐部</button>
-          <button type="button" class="btn primary" id="btn-preview-2list">俱乐部通用配置</button>
-          <button type="button" class="btn primary" id="btn-add-club">新增俱乐部</button>
-        </div>
-        <form id="form-club-list" class="form-grid">
-          <div class="form-item" id="existing-club-wrap" style="display:none;">
-            <label>选择俱乐部（必选）</label>
-            <select name="existing_club" required>
-              <option value="">请选择</option>
-              <option>JDG</option>
-              <option>TianBa</option>
-              <option>WBG</option>
-            </select>
-            <div class="help">说明：示例 PEL 俱乐部，选择后进行编辑</div>
-          </div>
-        </form>
-      </div>
-      
-      <!-- 俱乐部通用配置弹窗：积分规则配置 / 积分来源icon / 成长值来源icon（下拉选择后出现文件上传） -->
-      <div id="global-config-overlay" class="modal-overlay">
-        <div class="modal">
-          <div class="modal-header">
-            <div>俱乐部通用配置</div>
-            <button class="btn" id="btn-global-close">关闭</button>
-          </div>
-          <div class="modal-body">
-            <h3>通用配置项</h3>
-            <form id="form-global-config" class="form-grid">
-              <div class="form-item">
-                <label>积分规则配置（必选）</label>
-                <input type="file" accept="image/*,.json,.yml,.yaml" name="point_rule" required />
-              </div>
-              <div class="form-item">
-                <label>成长值规则配置（必选）</label>
-                <input type="file" accept="image/*,.json,.yml,.yaml" name="growth_rule" required />
-              </div>
+<header id="app-header"><div class="brand">PEL 分之一 — 运营管理后台</div></header>
+<main class="container">
+<aside class="sidebar">
+      <nav><ul>
+        <li><a href="page0_user.html">用户管理</a></li>
+        <li><a href="page1_banner.html">配置中心</a></li>
+        <li><a href="page2_club.html" class="active">俱乐部管理</a></li>
+        <li><a href="page6_activity.html">活动管理</a></li>
+        <li><a href="page7_product.html">积分兑换商品</a></li>
+        <li><a href="page8_review.html">审核中心</a></li>
+        <li><a href="page5_import.html">数据导入</a></li>
+        <li><a href="page9_feedback.html">问题反馈</a></li>
+        <li><a href="page10_account.html">账号管理</a></li>
+      </ul></nav></aside>
+<section class="content">
 
-              <div class="form-item">
-                <label>积分来源（先选择）</label>
-                <select id="point-source" name="point_source">
-                  <option value="">请选择来源</option>
-                  <option value="buy">购买商品</option>
-                  <option value="activity">活动参加</option>
-                  <option value="other">其他平台消费</option>
-                </select>
-              </div>
-              <div class="form-item" id="point-source-icon-wrap" style="display:none;">
-                <label>积分来源 icon（必选）</label>
-                <input type="file" accept="image/*" name="point_source_icon" />
-              </div>
+<div class="card"><h2>俱乐部列表</h2>
+<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+<button class="btn primary">编辑俱乐部</button>
+<button class="btn primary">新增俱乐部</button>
+<button class="btn primary" id="btn-member-mgmt">会员管理</button>
+<button class="btn primary" id="btn-growth-import">成长值导入</button>
+</div>
+<select style="width:200px;margin-bottom:12px"><option>JDG</option><option>TianBa</option><option>WBG</option></select>
 
-              <div class="form-item">
-                <label>成长值来源（先选择）</label>
-                <select id="growth-source" name="growth_source">
-                  <option value="">请选择来源</option>
-                  <option value="buy">购买商品</option>
-                  <option value="activity">活动参加</option>
-                  <option value="other">其他平台消费</option>
-                </select>
-              </div>
-              <div class="form-item" id="growth-source-icon-wrap" style="display:none;">
-                <label>成长值来源 icon（必选）</label>
-                <input type="file" accept="image/*" name="growth_source_icon" />
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button class="btn" id="btn-global-preview">预览配置</button>
-            <button class="btn" id="btn-global-publish">确认并发布</button>
-            <button class="btn" id="btn-global-cancel">取消</button>
-          </div>
-        </div>
-      </div>
+<div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:16px">
+<h3>基础信息</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div><label>俱乐部名称</label><input style="width:100%" value="JDG"/></div>
+<div><label>LOGO</label><input type="file" accept="image/*"/></div>
+<div><label>状态</label><select style="width:100%"><option>活跃</option><option>清退</option></select></div>
+<div><label>等级权益图片</label><input type="file" accept="image/*"/></div>
+</div>
+<button class="btn primary" style="margin-top:12px">保存</button></div>
 
-     <div class="card" id="club-config-card">
-        <div class="frame-wrap">
-          <div class="frame-title">俱乐部基础配置</div>
-          <div class="frame">
-            <form id="form-club" class="form-grid">
-              <div class="form-item">
-                <label>俱乐部名称（必选）</label>
-                <input type="text" name="club_name" required />
-                <div class="help">说明：用于前后台展示与识别</div>
-              </div>
-              <div class="form-item">
-                <label>俱乐部 LOGO（必选）</label>
-                <input type="file" accept="image/*" name="club_logo" required />
-              </div>
-              <div class="form-item">
-                <label>俱乐部状态（必选）</label>
-                <select name="club_status" required>
-                  <option value="活跃">活跃</option>
-                  <option value="清退">清退</option>
-                </select>
-              </div>
-              <div class="form-item">
-                <label>等级权益图片（必选）</label>
-                <input type="file" accept="image/*" name="level_rights_img" required />
-              </div>
-            </form>
-          </div>
-        </div>
-        <div class="btn-row">
-          <button class="btn" id="btn-preview-basic">预览配置</button>
-          <button class="btn" id="btn-publish-basic">确认并发布</button>
-        </div>
+<div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-bottom:16px">
+<h3>页面配置</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+<div><label>竖屏封面图</label><input type="file" accept="image/*"/><span class="help">俱乐部Tab主视觉</span></div>
+<div><label>横屏封面图</label><input type="file" accept="image/*"/><span class="help">权益页/活动页横版</span></div>
+</div>
+<h3>等级权益</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+<div><label>等级名称</label><select><option>Lv1</option><option>Lv2</option><option>Lv3</option><option>Lv4</option><option>Lv5</option></select></div>
+<div><label>等级称号</label><input placeholder="如:白金" style="width:100%"/></div>
+</div>
+<table class="table"><thead><tr><th>等级</th><th>称号</th><th>所需成长值</th><th>权益说明</th></tr></thead><tbody>
+<tr><td>Lv1</td><td>—</td><td>0</td><td>基础权益</td></tr>
+<tr><td>Lv2</td><td>白银</td><td>300</td><td>专属活动+限量兑换</td></tr>
+<tr><td>Lv3</td><td>黄金</td><td>1000</td><td>优先购票+限定福利</td></tr>
+<tr><td>Lv4</td><td>铂金</td><td>3000</td><td>VIP客服+专属铭牌</td></tr>
+<tr><td>Lv5</td><td>钻石</td><td>10000</td><td>全部权益+线下VIP座席</td></tr>
+</tbody></table>
+<h3 style="margin-top:12px">会员卡</h3>
+<div><label>卡片背景样式</label><input type="file" accept="image/*"/></div>
+<h3 style="margin-top:12px">等级衰退规则</h3>
+<div style="background:#fef3c7;border:1px solid #f59e0b;padding:10px;border-radius:6px;font-size:13px;color:#92400e">
+<p><b>结算周期：</b>每年6月30日、12月31日</p>
+<p><b>保级：</b>累计>=300 -> 维持</p>
+<p><b>衰退：</b>累计<300 -> 降级</p>
+<p><b>升级：</b>成长值达标即时升级，推送通知</p>
+</div>
+<button class="btn primary" style="margin-top:12px">保存</button></div>
 
-        <div class="frame-wrap">
-          <div class="frame-title">俱乐部页面配置</div>
-          <div class="frame">
-            <h3>俱乐部封面</h3>
-            <form id="form-club-covers" class="form-grid">
-              <div class="form-item">
-                <label>竖屏封面图（必选）</label>
-                <input type="file" accept="image/*" name="cover_vertical" required />
-                <div class="help">说明：【俱乐部】竖屏主视觉封面</div>
-              </div>
-              <div class="form-item">
-                <label>横屏封面图（必选）</label>
-                <input type="file" accept="image/*" name="cover_horizontal" required />
-                <div class="help">说明：【权益页/活动页/H5横版】主视觉封面</div>
-              </div>
-            </form>
+<div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px">
+<h3>通用配置</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+<div><label>积分规则（图片）</label><input type="file" accept="image/*"/></div>
+<div><label>成长值规则（图片）</label><input type="file" accept="image/*"/></div>
+<div><label>积分来源</label><select><option>购买商品</option><option>活动参加</option><option>其他平台消费</option></select></div>
+<div><label>成长值来源</label><select><option>购买商品</option><option>活动参加</option><option>其他平台消费</option></select></div>
+</div>
+<button class="btn primary">保存</button></div></div>
 
-            <h3>俱乐部权益</h3>
-        <form id="form-benefits" class="form-grid">
-          <div class="form-item">
-            <label>等级名称（必选）</label>
-            <select name="level_name" required>
-              <option>Lv1</option>
-              <option>Lv2</option>
-              <option>Lv3</option>
-              <option>Lv4</option>
-              <option>Lv5</option>
-            </select>
-          </div>
-          <div class="form-item">
-            <label>等级称号（可选）</label>
-            <input type="text" name="level_title" placeholder="如 白金" />
-            <div class="help">说明：用于对外展示的等级称号文案，例如“白金”。</div>
-          </div>
-        </form>
-            <h3>俱乐部会员卡</h3>
-            <form id="form-membercard" class="form-grid">
-          <div class="form-item">
-            <label>卡片样式（必选）</label>
-            <input type="file" accept="image/*" name="card_style" required />
-            <div class="help">说明：会员卡背景图样式</div>
-          </div>
-            </form>
-            <h3>社群二维码配置</h3>
-            <form id="form-qrcode" class="form-grid">
-          <div class="form-item">
-            <label>微信群二维码（必选）</label>
-            <input type="file" accept="image/*" name="qr_image" required />
-            <div class="help">说明：上传二维码图片，生成 URL 供 H5 展示</div>
-          </div>
-          <div class="form-item">
-            <label>群名称（可选）</label>
-            <input type="text" name="qr_name" placeholder="如 XX粉丝群" />
-          </div>
-          <div class="form-item">
-            <label>更新时间（自动记录）</label>
-            <input type="datetime-local" name="qr_updated_at" data-auto-now="true" disabled />
-          </div>
-            </form>
-          </div>
-        </div>
-        <div class="btn-row">
-          <button class="btn" id="btn-preview-2conf">预览配置</button>
-          <button class="btn" id="btn-publish-2conf">确认并发布</button>
-        </div>
-      </div>
-      <!-- 新增俱乐部弹窗 -->
-      <div id="club-add-overlay" class="modal-overlay">
-        <div class="modal">
-          <div class="modal-header">
-            <div>新增俱乐部配置</div>
-            <button class="btn" id="btn-modal-close">关闭</button>
-          </div>
-          <div class="modal-body">
-            <h3>俱乐部基础配置</h3>
-            <form id="modal-form-club" class="form-grid">
-              <div class="form-item">
-                <label>俱乐部名称（必选）</label>
-                <input type="text" name="club_name" required />
-              </div>
-              <div class="form-item">
-                <label>俱乐部 LOGO（必选）</label>
-                <input type="file" accept="image/*" name="club_logo" required />
-              </div>
-              
-              <div class="form-item">
-                <label>俱乐部状态（必选）</label>
-                <select name="club_status" required>
-                  <option value="活跃">活跃</option>
-                  <option value="清退">清退</option>
-                </select>
-              </div>
-                            <div class="form-item">
-                <label>等级权益图片（必选）</label>
-                <input type="file" accept="image/*" name="level_rights_img" required />
-              </div>
-            </form>
-            <h3>俱乐部页面配置</h3>
-            <h3>俱乐部封面</h3>
-            <form id="modal-form-club-covers" class="form-grid">
-              <div class="form-item">
-                <label>竖屏封面图（必选）</label>
-                <input type="file" accept="image/*" name="cover_vertical" required />
-              </div>
-              <div class="form-item">
-                <label>横屏封面图（必选）</label>
-                <input type="file" accept="image/*" name="cover_horizontal" required />
-              </div>
-            </form>
-            <h3>俱乐部权益</h3>
-            <form id="modal-form-benefits" class="form-grid">
-              <div class="form-item">
-                <label>等级名称（必选）</label>
-                <select name="level_name" required>
-                  <option>Lv1</option>
-                  <option>Lv2</option>
-                  <option>Lv3</option>
-                  <option>Lv4</option>
-                  <option>Lv5</option>
-                </select>
-              </div>
-              <div class="form-item">
-                <label>等级称号（可选）</label>
-                <input type="text" name="level_title" placeholder="如 白金" />
-              </div>
-            </form>
-            <h3>俱乐部会员卡</h3>
-            <form id="modal-form-membercard" class="form-grid">
-              <div class="form-item">
-                <label>卡片样式（必选）</label>
-                <input type="file" accept="image/*" name="card_style" required />
-                <div class="help">说明：会员卡背景图样式</div>
-              </div>
-            </form>
-            <h3>社群二维码配置</h3>
-            <form id="modal-form-qrcode" class="form-grid">
-              <div class="form-item">
-                <label>微信群二维码（必选）</label>
-                <input type="file" accept="image/*" name="qr_image" required />
-              </div>
-              <div class="form-item">
-                <label>群名称（可选）</label>
-                <input type="text" name="qr_name" placeholder="如 粉丝群" />
-              </div>
-              <div class="form-item">
-                <label>更新时间（自动记录）</label>
-                <input type="datetime-local" name="qr_updated_at" data-auto-now="true" disabled />
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button class="btn" id="btn-modal-preview">预览配置</button>
-            <button class="btn" id="btn-modal-publish">确认并发布</button>
-            <button class="btn" id="btn-modal-cancel">取消</button>
-          </div>
-        </div>
-      </div>
+<div class="modal-overlay" id="member-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);align-items:center;justify-content:center;z-index:2000">
+<div class="modal" style="background:#fff;width:700px;max-height:80vh;overflow:auto;border-radius:8px;z-index:2001">
+<div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-weight:600;display:flex;justify-content:space-between">
+会员管理 <button class="btn" onclick="this.closest('.modal-overlay').style.display='none'">关闭</button></div>
+<div style="padding:16px">
+<div style="display:flex;gap:12px;margin-bottom:12px">
+<div><label>搜索</label><input placeholder="昵称/UID"/></div>
+<div><label>等级</label><select><option>全部</option><option>Lv1</option><option>Lv2</option><option>Lv3</option><option>Lv4</option><option>Lv5</option></select></div>
+</div>
+<table class="table"><thead><tr><th>UID</th><th>昵称</th><th>等级</th><th>成长值</th><th>加入时间</th><th>操作</th></tr></thead><tbody>
+<tr><td>user_001</td><td>张三</td><td>Lv3</td><td>3517</td><td>2026-01-15</td><td><button class="btn">清退</button></td></tr>
+<tr><td>user_002</td><td>李四</td><td>Lv1</td><td>120</td><td>2026-06-01</td><td><button class="btn">清退</button></td></tr>
+</tbody></table></div></div></div>
 
-    </section>
-  </main>
+<script>
+document.getElementById('btn-member-mgmt').onclick=()=>{document.getElementById('member-modal').style.display='flex';};
+</script>
 
-  <script src="../assets/js/common.js"></script>
-  <script src="../assets/js/common.js?v=20251106"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const selector = document.querySelector('select[name="existing_club"]');
-      const card = document.getElementById('club-config-card');
-      if (card) card.style.display = 'none';
-
-      // 编辑俱乐部按钮：点击后显示俱乐部选择下拉框
-      const editBtn = document.getElementById('btn-edit-club');
-      if (editBtn) {
-        editBtn.addEventListener('click', () => {
-          const wrap = document.getElementById('existing-club-wrap');
-          if (wrap) {
-            wrap.style.display = '';
-            const sel = document.querySelector('select[name="existing_club"]');
-            if (sel) sel.focus();
-            try { wrap.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
-          }
-        });
-      }
-
-      const setVal = (sel, val) => {
-        const el = document.querySelector(sel);
-        if (!el) return;
-        if (el.hasAttribute && el.hasAttribute('data-rt')) {
-          el.innerHTML = val || '';
-        } else {
-          el.value = val || '';
-        }
-      };
-
-      const prefill = (club) => {
-        if (!club) { if (card) card.style.display = 'none'; return; }
-        if (card) card.style.display = '';
-        // 基础信息
-        setVal('input[name="club_name"]', club);
-        setVal('select[name="club_status"]', '活跃');
-        
-
-        // 会员卡/二维码归属俱乐部
-        setVal('select[name="card_club"]', club);
-        setVal('select[name="qr_club"]', club);
-        setVal('select[name="qr_level"]', 'Lv3');
-        setVal('input[name="qr_name"]', `${club} 粉丝群`);
-        const ua = document.querySelector('input[name="qr_updated_at"]');
-        if (ua) ua.value = nowForInput();
-
-        // 权益示例
-        setVal('select[name="level_name"]', 'Lv3');
-        setVal('input[name="level_title"]', '白金');
-        setVal('input[name="task_entry_text"]', '去打卡');
-      };
-
-      if (selector) selector.addEventListener('change', () => prefill(selector.value));
-
-      // 新增俱乐部弹窗交互
-      const addBtn = document.getElementById('btn-add-club');
-      const globalBtn = document.getElementById('btn-preview-2list');
-      const overlayAdd = document.getElementById('club-add-overlay');
-      const overlayGlobal = document.getElementById('global-config-overlay');
-      const closeBtn = document.getElementById('btn-modal-close');
-      const cancelBtn = document.getElementById('btn-modal-cancel');
-      const closeGlobalBtn = document.getElementById('btn-global-close');
-      const cancelGlobalBtn = document.getElementById('btn-global-cancel');
-      // 增强弹窗逻辑：自动失焦选择框，确保挂到 body 顶层，禁用滚动
-      const mountToBody = (el) => { if (el && el.parentElement !== document.body) document.body.appendChild(el); };
-      const openModal = (el) => {
-        if (!el) return;
-        try { document.activeElement && document.activeElement.blur(); } catch(_) {}
-        mountToBody(el);
-        el.style.display = 'flex';
-        document.body.classList.add('modal-open');
-      };
-      const closeModal = (el) => {
-        if (!el) return;
-        el.style.display = 'none';
-        document.body.classList.remove('modal-open');
-      };
-
-      // 通用配置弹窗：来源下拉后显示文件上传入口
-      const pointSource = document.getElementById('point-source');
-      const pointIconWrap = document.getElementById('point-source-icon-wrap');
-      const growthSource = document.getElementById('growth-source');
-      const growthIconWrap = document.getElementById('growth-source-icon-wrap');
-      const toggleWrap = (sel, wrap) => {
-        if (!wrap) return;
-        const val = sel && sel.value ? sel.value : '';
-        wrap.style.display = val ? '' : 'none';
-      };
-      if (pointSource) {
-        toggleWrap(pointSource, pointIconWrap);
-        pointSource.addEventListener('change', () => toggleWrap(pointSource, pointIconWrap));
-      }
-      if (growthSource) {
-        toggleWrap(growthSource, growthIconWrap);
-        growthSource.addEventListener('change', () => toggleWrap(growthSource, growthIconWrap));
-      }
-
-      if (addBtn && overlayAdd) addBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(overlayAdd); });
-      if (globalBtn && overlayGlobal) globalBtn.addEventListener('click', (e) => { e.preventDefault(); openModal(overlayGlobal); });
-      if (closeBtn && overlayAdd) closeBtn.addEventListener('click', () => { closeModal(overlayAdd); });
-      if (cancelBtn && overlayAdd) cancelBtn.addEventListener('click', () => { closeModal(overlayAdd); });
-      if (closeGlobalBtn && overlayGlobal) closeGlobalBtn.addEventListener('click', () => { closeModal(overlayGlobal); });
-      if (cancelGlobalBtn && overlayGlobal) cancelGlobalBtn.addEventListener('click', () => { closeModal(overlayGlobal); });
-    });
-  </script>
+</section>
+</main>
+<script src="../assets/js/common.js"></script>
+<script>document.addEventListener('DOMContentLoaded',()=>{ensureAuth();});</script>
 </body>
 </html>
