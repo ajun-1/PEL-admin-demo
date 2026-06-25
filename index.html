@@ -3,117 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>1/PEL后台登录</title>
+  <title>PEL 分之一粉运后台登录</title>
   <link rel="stylesheet" href="assets/css/base.css" />
-  <style>
-    html, body { height: 100%; }
-    .login-wrap {
-      min-height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg,#0f172a,#1f2937);
-      padding: 24px;
-    }
-    .login-card {
-      width: 100%;
-      max-width: 420px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      overflow: hidden;
-    }
-    .login-header { background: #111827; color: #fff; padding: 20px 24px; }
-    .login-header h1 { font-size: 20px; margin: 0; }
-    .login-body { padding: 24px; }
-    .form-row { margin-bottom: 16px; }
-    .form-row label { display: block; margin-bottom: 8px; color: #374151; }
-    .form-row input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; outline: none; font-size: 14px; }
-    .form-row input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
-    .login-actions { display: flex; align-items: center; justify-content: space-between; }
-    .login-actions .left { display:flex; align-items:center; gap:12px; }
-    .btn-primary { background: #6366f1; border: none; color: #fff; padding: 10px 16px; border-radius: 8px; cursor: pointer; }
-    .btn-primary:hover { background: #5458f0; }
-    .hint { color: #6b7280; font-size: 12px; }
-    .error { color: #dc2626; margin-top: 8px; }
-    .inline { display:flex; align-items:center; gap:8px; }
-    .inline label { margin:0; }
-  </style>
 </head>
-<body>
-  <div class="login-wrap">
-    <div class="login-card">
-      <div class="login-header">
-        <h1>1/PEL后台 登录</h1>
+<body class="login-page">
+  <section class="login-card">
+    <header>
+      <h1>PEL 分之一粉运后台</h1>
+      <p class="hint">账号：admin　密码：123456</p>
+    </header>
+    <form id="login-form">
+      <div class="login-row">
+        <label for="username">账号</label>
+        <input id="username" name="username" type="text" autocomplete="username" placeholder="请输入账号" required />
       </div>
-      <div class="login-body">
-        <form id="login-form">
-          <div class="form-row">
-            <label for="username">账号</label>
-            <input id="username" name="username" type="text" placeholder="请输入账号" required />
-          </div>
-          <div class="form-row">
-            <label for="password">密码</label>
-            <div class="inline">
-              <input id="password" name="password" type="password" placeholder="请输入密码" required />
-              <label class="inline"><input type="checkbox" id="toggle-password" /> 显示密码</label>
-            </div>
-          </div>
-          <div class="login-actions">
-            <div class="left">
-              <label class="inline"><input type="checkbox" id="remember" /> 记住我</label>
-            </div>
-            <button type="submit" class="btn-primary" id="btn-login">登录</button>
-          </div>
-          <div id="login-msg" class="error" aria-live="polite"></div>
-        </form>
+      <div class="login-row">
+        <label for="password">密码</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="请输入密码" required />
       </div>
-    </div>
-  </div>
-
-  <script>
-    // 简单前端校验：账号：admin，密码：123456
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('login-form');
-      const msg = document.getElementById('login-msg');
-      const btn = document.getElementById('btn-login');
-      const pwd = document.getElementById('password');
-      const togglePwd = document.getElementById('toggle-password');
-      const remember = document.getElementById('remember');
-
-      // 显示/隐藏密码
-      togglePwd.addEventListener('change', () => {
-        pwd.type = togglePwd.checked ? 'text' : 'password';
-      });
-
-      // 输入时清除错误
-      form.addEventListener('input', () => { msg.textContent = ''; });
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const username = (document.getElementById('username').value || '').trim();
-        const password = pwd.value || '';
-        btn.disabled = true; btn.textContent = '正在登录…';
-        const done = () => { btn.disabled = false; btn.textContent = '登录'; };
-
-        // 简单校验
-        if (!username || !password) { msg.textContent = '请输入账号和密码'; done(); return; }
-        if (username === 'admin' && password === '123456') {
-          const store = remember.checked ? localStorage : sessionStorage;
-          store.setItem('pel:auth_user', username);
-          store.setItem('pel:auth_time', String(Date.now()));
-          // 同步写入兼容键，确保守卫识别
-          try { store.setItem('admin_user', JSON.stringify({ username })); } catch (e) {}
-          // 支持重定向返回原页面
-          const params = new URLSearchParams(location.search);
-          const target = params.get('redirect') || 'pages/page0_user.html';
-          window.location.replace(target);
-        } else {
-          msg.textContent = '账号或密码错误，请重试';
-          done();
-        }
-      });
-    });
-  </script>
+      <div class="login-footer">
+        <label class="login-inline">
+          <input type="checkbox" id="remember" />
+          记住登录
+        </label>
+        <label class="login-inline">
+          <input type="checkbox" id="toggle-password" />
+          显示密码
+        </label>
+      </div>
+      <button class="btn primary" type="submit">登录</button>
+      <div id="login-msg" class="error" aria-live="polite"></div>
+    </form>
+  </section>
+  <script src="assets/js/common.js"></script>
+  <script>PELAdmin.initLogin();</script>
 </body>
 </html>
